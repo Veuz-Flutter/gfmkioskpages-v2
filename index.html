@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" sizes="32x32" href="img/favicon.png">
+    <!-- Registration Form Dependencies -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.10.12/build/css/intlTelInput.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         .main-content {
             background: #00000099;
@@ -186,6 +189,13 @@
     </div>
 
     <!-- Include the scripts -->
+    <!-- jQuery (required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- intl-tel-input JS -->
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.10.12/build/js/intlTelInput.min.js"></script>
+    <script src="scripts.js"></script>
     <script>
         // Load customer details panel from external file
         fetch('dummy-controls.html')
@@ -200,6 +210,12 @@
             .then(response => response.text())
             .then(html => {
                 document.getElementById('registrationFormContainer').innerHTML = html;
+                // Initialize registration form after HTML is loaded
+                if (typeof initRegistrationFormAfterLoad === 'function') {
+                    setTimeout(() => {
+                        initRegistrationFormAfterLoad();
+                    }, 100);
+                }
             })
             .catch(error => console.error('Error loading registration form:', error));
         fetch('welcome-message.html')
@@ -209,7 +225,6 @@
             })
             .catch(error => console.error('Error loading welcome message:', error));
     </script>
-    <script src="scripts.js"></script>
 </body>
 
 </html>

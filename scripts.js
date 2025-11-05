@@ -277,6 +277,378 @@ function showDummyControlls() {
 
 // Registration Form Functions
 let registrationFormAutoCloseTimeout = null;
+let iti = null; // intl-tel-input instance
+
+// Single country list variable for all dropdowns - Complete list of all countries
+const COUNTRIES_LIST = [
+    { value: "Afghanistan", text: "Afghanistan", code: "af" },
+    { value: "Albania", text: "Albania", code: "al" },
+    { value: "Algeria", text: "Algeria", code: "dz" },
+    { value: "Andorra", text: "Andorra", code: "ad" },
+    { value: "Angola", text: "Angola", code: "ao" },
+    { value: "Antigua and Barbuda", text: "Antigua and Barbuda", code: "ag" },
+    { value: "Argentina", text: "Argentina", code: "ar" },
+    { value: "Armenia", text: "Armenia", code: "am" },
+    { value: "Australia", text: "Australia", code: "au" },
+    { value: "Austria", text: "Austria", code: "at" },
+    { value: "Azerbaijan", text: "Azerbaijan", code: "az" },
+    { value: "Bahamas", text: "Bahamas", code: "bs" },
+    { value: "Bahrain", text: "Bahrain", code: "bh" },
+    { value: "Bangladesh", text: "Bangladesh", code: "bd" },
+    { value: "Barbados", text: "Barbados", code: "bb" },
+    { value: "Belarus", text: "Belarus", code: "by" },
+    { value: "Belgium", text: "Belgium", code: "be" },
+    { value: "Belize", text: "Belize", code: "bz" },
+    { value: "Benin", text: "Benin", code: "bj" },
+    { value: "Bhutan", text: "Bhutan", code: "bt" },
+    { value: "Bolivia", text: "Bolivia", code: "bo" },
+    { value: "Bosnia and Herzegovina", text: "Bosnia and Herzegovina", code: "ba" },
+    { value: "Botswana", text: "Botswana", code: "bw" },
+    { value: "Brazil", text: "Brazil", code: "br" },
+    { value: "Brunei", text: "Brunei", code: "bn" },
+    { value: "Bulgaria", text: "Bulgaria", code: "bg" },
+    { value: "Burkina Faso", text: "Burkina Faso", code: "bf" },
+    { value: "Burundi", text: "Burundi", code: "bi" },
+    { value: "Cambodia", text: "Cambodia", code: "kh" },
+    { value: "Cameroon", text: "Cameroon", code: "cm" },
+    { value: "Canada", text: "Canada", code: "ca" },
+    { value: "Cape Verde", text: "Cape Verde", code: "cv" },
+    { value: "Central African Republic", text: "Central African Republic", code: "cf" },
+    { value: "Chad", text: "Chad", code: "td" },
+    { value: "Chile", text: "Chile", code: "cl" },
+    { value: "China", text: "China", code: "cn" },
+    { value: "Colombia", text: "Colombia", code: "co" },
+    { value: "Comoros", text: "Comoros", code: "km" },
+    { value: "Congo", text: "Congo", code: "cg" },
+    { value: "Costa Rica", text: "Costa Rica", code: "cr" },
+    { value: "Croatia", text: "Croatia", code: "hr" },
+    { value: "Cuba", text: "Cuba", code: "cu" },
+    { value: "Cyprus", text: "Cyprus", code: "cy" },
+    { value: "Czech Republic", text: "Czech Republic", code: "cz" },
+    { value: "Denmark", text: "Denmark", code: "dk" },
+    { value: "Djibouti", text: "Djibouti", code: "dj" },
+    { value: "Dominica", text: "Dominica", code: "dm" },
+    { value: "Dominican Republic", text: "Dominican Republic", code: "do" },
+    { value: "East Timor", text: "East Timor", code: "tl" },
+    { value: "Ecuador", text: "Ecuador", code: "ec" },
+    { value: "Egypt", text: "Egypt", code: "eg" },
+    { value: "El Salvador", text: "El Salvador", code: "sv" },
+    { value: "Equatorial Guinea", text: "Equatorial Guinea", code: "gq" },
+    { value: "Eritrea", text: "Eritrea", code: "er" },
+    { value: "Estonia", text: "Estonia", code: "ee" },
+    { value: "Ethiopia", text: "Ethiopia", code: "et" },
+    { value: "Fiji", text: "Fiji", code: "fj" },
+    { value: "Finland", text: "Finland", code: "fi" },
+    { value: "France", text: "France", code: "fr" },
+    { value: "Gabon", text: "Gabon", code: "ga" },
+    { value: "Gambia", text: "Gambia", code: "gm" },
+    { value: "Georgia", text: "Georgia", code: "ge" },
+    { value: "Germany", text: "Germany", code: "de" },
+    { value: "Ghana", text: "Ghana", code: "gh" },
+    { value: "Greece", text: "Greece", code: "gr" },
+    { value: "Grenada", text: "Grenada", code: "gd" },
+    { value: "Guatemala", text: "Guatemala", code: "gt" },
+    { value: "Guinea", text: "Guinea", code: "gn" },
+    { value: "Guinea-Bissau", text: "Guinea-Bissau", code: "gw" },
+    { value: "Guyana", text: "Guyana", code: "gy" },
+    { value: "Haiti", text: "Haiti", code: "ht" },
+    { value: "Honduras", text: "Honduras", code: "hn" },
+    { value: "Hungary", text: "Hungary", code: "hu" },
+    { value: "Iceland", text: "Iceland", code: "is" },
+    { value: "India", text: "India", code: "in" },
+    { value: "Indonesia", text: "Indonesia", code: "id" },
+    { value: "Iran", text: "Iran", code: "ir" },
+    { value: "Iraq", text: "Iraq", code: "iq" },
+    { value: "Ireland", text: "Ireland", code: "ie" },
+    { value: "Israel", text: "Israel", code: "il" },
+    { value: "Italy", text: "Italy", code: "it" },
+    { value: "Ivory Coast", text: "Ivory Coast", code: "ci" },
+    { value: "Jamaica", text: "Jamaica", code: "jm" },
+    { value: "Japan", text: "Japan", code: "jp" },
+    { value: "Jordan", text: "Jordan", code: "jo" },
+    { value: "Kazakhstan", text: "Kazakhstan", code: "kz" },
+    { value: "Kenya", text: "Kenya", code: "ke" },
+    { value: "Kiribati", text: "Kiribati", code: "ki" },
+    { value: "North Korea", text: "North Korea", code: "kp" },
+    { value: "South Korea", text: "South Korea", code: "kr" },
+    { value: "Kuwait", text: "Kuwait", code: "kw" },
+    { value: "Kyrgyzstan", text: "Kyrgyzstan", code: "kg" },
+    { value: "Laos", text: "Laos", code: "la" },
+    { value: "Latvia", text: "Latvia", code: "lv" },
+    { value: "Lebanon", text: "Lebanon", code: "lb" },
+    { value: "Lesotho", text: "Lesotho", code: "ls" },
+    { value: "Liberia", text: "Liberia", code: "lr" },
+    { value: "Libya", text: "Libya", code: "ly" },
+    { value: "Liechtenstein", text: "Liechtenstein", code: "li" },
+    { value: "Lithuania", text: "Lithuania", code: "lt" },
+    { value: "Luxembourg", text: "Luxembourg", code: "lu" },
+    { value: "Macedonia", text: "Macedonia", code: "mk" },
+    { value: "Madagascar", text: "Madagascar", code: "mg" },
+    { value: "Malawi", text: "Malawi", code: "mw" },
+    { value: "Malaysia", text: "Malaysia", code: "my" },
+    { value: "Maldives", text: "Maldives", code: "mv" },
+    { value: "Mali", text: "Mali", code: "ml" },
+    { value: "Malta", text: "Malta", code: "mt" },
+    { value: "Marshall Islands", text: "Marshall Islands", code: "mh" },
+    { value: "Mauritania", text: "Mauritania", code: "mr" },
+    { value: "Mauritius", text: "Mauritius", code: "mu" },
+    { value: "Mexico", text: "Mexico", code: "mx" },
+    { value: "Micronesia", text: "Micronesia", code: "fm" },
+    { value: "Moldova", text: "Moldova", code: "md" },
+    { value: "Monaco", text: "Monaco", code: "mc" },
+    { value: "Mongolia", text: "Mongolia", code: "mn" },
+    { value: "Montenegro", text: "Montenegro", code: "me" },
+    { value: "Morocco", text: "Morocco", code: "ma" },
+    { value: "Mozambique", text: "Mozambique", code: "mz" },
+    { value: "Myanmar", text: "Myanmar", code: "mm" },
+    { value: "Namibia", text: "Namibia", code: "na" },
+    { value: "Nauru", text: "Nauru", code: "nr" },
+    { value: "Nepal", text: "Nepal", code: "np" },
+    { value: "Netherlands", text: "Netherlands", code: "nl" },
+    { value: "New Zealand", text: "New Zealand", code: "nz" },
+    { value: "Nicaragua", text: "Nicaragua", code: "ni" },
+    { value: "Niger", text: "Niger", code: "ne" },
+    { value: "Nigeria", text: "Nigeria", code: "ng" },
+    { value: "Norway", text: "Norway", code: "no" },
+    { value: "Oman", text: "Oman", code: "om" },
+    { value: "Pakistan", text: "Pakistan", code: "pk" },
+    { value: "Palau", text: "Palau", code: "pw" },
+    { value: "Palestine", text: "Palestine", code: "ps" },
+    { value: "Panama", text: "Panama", code: "pa" },
+    { value: "Papua New Guinea", text: "Papua New Guinea", code: "pg" },
+    { value: "Paraguay", text: "Paraguay", code: "py" },
+    { value: "Peru", text: "Peru", code: "pe" },
+    { value: "Philippines", text: "Philippines", code: "ph" },
+    { value: "Poland", text: "Poland", code: "pl" },
+    { value: "Portugal", text: "Portugal", code: "pt" },
+    { value: "Qatar", text: "Qatar", code: "qa" },
+    { value: "Romania", text: "Romania", code: "ro" },
+    { value: "Russia", text: "Russia", code: "ru" },
+    { value: "Rwanda", text: "Rwanda", code: "rw" },
+    { value: "Saint Kitts and Nevis", text: "Saint Kitts and Nevis", code: "kn" },
+    { value: "Saint Lucia", text: "Saint Lucia", code: "lc" },
+    { value: "Saint Vincent and the Grenadines", text: "Saint Vincent and the Grenadines", code: "vc" },
+    { value: "Samoa", text: "Samoa", code: "ws" },
+    { value: "San Marino", text: "San Marino", code: "sm" },
+    { value: "Sao Tome and Principe", text: "Sao Tome and Principe", code: "st" },
+    { value: "Saudi Arabia", text: "Saudi Arabia", code: "sa" },
+    { value: "Senegal", text: "Senegal", code: "sn" },
+    { value: "Serbia", text: "Serbia", code: "rs" },
+    { value: "Seychelles", text: "Seychelles", code: "sc" },
+    { value: "Sierra Leone", text: "Sierra Leone", code: "sl" },
+    { value: "Singapore", text: "Singapore", code: "sg" },
+    { value: "Slovakia", text: "Slovakia", code: "sk" },
+    { value: "Slovenia", text: "Slovenia", code: "si" },
+    { value: "Solomon Islands", text: "Solomon Islands", code: "sb" },
+    { value: "Somalia", text: "Somalia", code: "so" },
+    { value: "South Africa", text: "South Africa", code: "za" },
+    { value: "South Sudan", text: "South Sudan", code: "ss" },
+    { value: "Spain", text: "Spain", code: "es" },
+    { value: "Sri Lanka", text: "Sri Lanka", code: "lk" },
+    { value: "Sudan", text: "Sudan", code: "sd" },
+    { value: "Suriname", text: "Suriname", code: "sr" },
+    { value: "Swaziland", text: "Swaziland", code: "sz" },
+    { value: "Sweden", text: "Sweden", code: "se" },
+    { value: "Switzerland", text: "Switzerland", code: "ch" },
+    { value: "Syria", text: "Syria", code: "sy" },
+    { value: "Taiwan", text: "Taiwan", code: "tw" },
+    { value: "Tajikistan", text: "Tajikistan", code: "tj" },
+    { value: "Tanzania", text: "Tanzania", code: "tz" },
+    { value: "Thailand", text: "Thailand", code: "th" },
+    { value: "Togo", text: "Togo", code: "tg" },
+    { value: "Tonga", text: "Tonga", code: "to" },
+    { value: "Trinidad and Tobago", text: "Trinidad and Tobago", code: "tt" },
+    { value: "Tunisia", text: "Tunisia", code: "tn" },
+    { value: "Turkey", text: "Turkey", code: "tr" },
+    { value: "Turkmenistan", text: "Turkmenistan", code: "tm" },
+    { value: "Tuvalu", text: "Tuvalu", code: "tv" },
+    { value: "UAE", text: "United Arab Emirates", code: "ae" },
+    { value: "Uganda", text: "Uganda", code: "ug" },
+    { value: "Ukraine", text: "Ukraine", code: "ua" },
+    { value: "UK", text: "United Kingdom", code: "gb" },
+    { value: "USA", text: "United States", code: "us" },
+    { value: "Uruguay", text: "Uruguay", code: "uy" },
+    { value: "Uzbekistan", text: "Uzbekistan", code: "uz" },
+    { value: "Vanuatu", text: "Vanuatu", code: "vu" },
+    { value: "Vatican City", text: "Vatican City", code: "va" },
+    { value: "Venezuela", text: "Venezuela", code: "ve" },
+    { value: "Vietnam", text: "Vietnam", code: "vn" },
+    { value: "Yemen", text: "Yemen", code: "ye" },
+    { value: "Zambia", text: "Zambia", code: "zm" },
+    { value: "Zimbabwe", text: "Zimbabwe", code: "zw" }
+];
+
+// Preferred countries for phone input
+const PREFERRED_COUNTRIES = ["in", "ae", "us", "gb"];
+
+// Initialize intl-tel-input when form opens
+function initPhoneInput() {
+    const input = document.querySelector("#reg-mobile");
+    if (input && window.intlTelInput) {
+        // Destroy existing instance if any
+        if (iti) {
+            try {
+                iti.destroy();
+            } catch (e) {
+                console.warn('Error destroying iti instance:', e);
+            }
+            iti = null;
+        }
+
+        if (!iti) {
+            iti = window.intlTelInput(input, {
+                initialCountry: "ae",
+                preferredCountries: PREFERRED_COUNTRIES,
+                separateDialCode: true,
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.10.12/build/js/utils.js"
+            });
+        }
+    }
+}
+
+// Initialize Select2 for nationality and country dropdowns
+function initSelect2() {
+    if (typeof $ === 'undefined' || !$.fn.select2) {
+        console.warn('jQuery or Select2 not loaded');
+        return;
+    }
+
+    // Populate nationality dropdown
+    const nationalitySelect = $('#reg-nationality');
+    if (nationalitySelect.length) {
+        // Destroy existing Select2 instance if any
+        if (nationalitySelect.data('select2')) {
+            nationalitySelect.select2('destroy');
+        }
+
+        nationalitySelect.empty().append(new Option('Select Nationality', ''));
+        COUNTRIES_LIST.forEach(country => {
+            nationalitySelect.append(new Option(country.text, country.value));
+        });
+
+        nationalitySelect.select2({
+            placeholder: 'Select Nationality',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('#registrationForm')
+        });
+
+        // Autofocus search box when dropdown opens for nationality
+        nationalitySelect.on('select2:open', function () {
+            setTimeout(function () {
+                const f = document.querySelector('.select2-search__field');
+                if (f) f.focus();
+            }, 100);
+        });
+    }
+
+    // Populate country of residence dropdown
+    const countrySelect = $('#reg-country-of-residence');
+    if (countrySelect.length) {
+        // Destroy existing Select2 instance if any
+        if (countrySelect.data('select2')) {
+            countrySelect.select2('destroy');
+        }
+
+        countrySelect.empty().append(new Option('Select Country of Residence', ''));
+        COUNTRIES_LIST.forEach(country => {
+            countrySelect.append(new Option(country.text, country.value));
+        });
+
+        countrySelect.select2({
+            placeholder: 'Select Country of Residence',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('#registrationForm')
+        });
+
+        // Autofocus search box when dropdown opens for country of residence
+        countrySelect.on('select2:open', function () {
+            setTimeout(function () {
+                const f = document.querySelector('.select2-search__field');
+                if (f) f.focus();
+            }, 100);
+        });
+
+        // Update badge preview on Select2 change
+        countrySelect.on('change', function () {
+            updateBadgePreview();
+        });
+    }
+}
+
+// Function to update badge preview in real-time
+function updateBadgePreview() {
+    const firstName = document.getElementById('reg-firstname');
+    const lastName = document.getElementById('reg-lastname');
+    const jobTitle = document.getElementById('reg-designation');
+    const company = document.getElementById('reg-company');
+    const countrySelect = $('#reg-country-of-residence');
+
+    if (!firstName || !lastName || !jobTitle || !company) return;
+
+    // Update full name
+    const fullName = [firstName.value.trim(), lastName.value.trim()].filter(name => name).join(' ') || 'FULL NAME';
+    const badgeFullname = document.getElementById('badge-fullname');
+    if (badgeFullname) {
+        badgeFullname.textContent = fullName.toUpperCase();
+    }
+
+    // Update job title
+    const badgeJobtitle = document.getElementById('badge-jobtitle');
+    if (badgeJobtitle) {
+        badgeJobtitle.textContent = jobTitle.value.trim().toUpperCase() || 'JOB TITLE';
+    }
+
+    // Update company name
+    const badgeCompany = document.getElementById('badge-company');
+    if (badgeCompany) {
+        badgeCompany.textContent = company.value.trim().toUpperCase() || 'COMPANY NAME';
+    }
+
+    // Update country of residence
+    const badgeCountry = document.getElementById('badge-country');
+    if (badgeCountry) {
+        const country = countrySelect.val() || 'COUNTRY OF RESIDENCE';
+        badgeCountry.textContent = country.toUpperCase();
+    }
+}
+
+// Initialize registration form after HTML is loaded
+function initRegistrationFormAfterLoad() {
+    console.log('🔧 Initializing registration form after load');
+    setTimeout(() => {
+        initPhoneInput();
+        initSelect2();
+
+        // Setup badge preview event listeners
+        setupBadgePreviewListeners();
+    }, 200);
+}
+
+// Setup badge preview event listeners
+function setupBadgePreviewListeners() {
+    // Use jQuery if available, otherwise use vanilla JS
+    if (typeof $ !== 'undefined') {
+        $(document).ready(function () {
+            $('#reg-firstname').on('input', updateBadgePreview);
+            $('#reg-lastname').on('input', updateBadgePreview);
+            $('#reg-designation').on('input', updateBadgePreview);
+            $('#reg-company').on('input', updateBadgePreview);
+        });
+    } else {
+        // Fallback to vanilla JS
+        const firstNameField = document.getElementById('reg-firstname');
+        const lastNameField = document.getElementById('reg-lastname');
+        const designationField = document.getElementById('reg-designation');
+        const companyField = document.getElementById('reg-company');
+
+        if (firstNameField) firstNameField.addEventListener('input', updateBadgePreview);
+        if (lastNameField) lastNameField.addEventListener('input', updateBadgePreview);
+        if (designationField) designationField.addEventListener('input', updateBadgePreview);
+        if (companyField) companyField.addEventListener('input', updateBadgePreview);
+    }
+}
 
 function openRegistrationForm() {
     console.log('📝 Opening registration form');
@@ -292,9 +664,12 @@ function openRegistrationForm() {
     // Hide loading state when opening form
     hideRegistrationLoading();
 
-    // Setup field error clearing (in case form was loaded dynamically)
+    // Initialize phone input and Select2 when form opens
     setTimeout(() => {
+        initPhoneInput();
+        initSelect2();
         setupFieldErrorClearing();
+        setupBadgePreviewListeners();
     }, 100);
 
     // Focus on first name field after 1 second
@@ -327,6 +702,29 @@ function closeRegistrationForm() {
 
     // Hide loading state when closing form
     hideRegistrationLoading();
+
+    // Destroy Select2 instances when closing
+    if (typeof $ !== 'undefined' && $.fn.select2) {
+        const nationalitySelect = $('#reg-nationality');
+        const countrySelect = $('#reg-country-of-residence');
+
+        if (nationalitySelect.length && nationalitySelect.data('select2')) {
+            nationalitySelect.select2('destroy');
+        }
+        if (countrySelect.length && countrySelect.data('select2')) {
+            countrySelect.select2('destroy');
+        }
+    }
+
+    // Destroy intl-tel-input instance when closing
+    if (iti) {
+        try {
+            iti.destroy();
+        } catch (e) {
+            console.warn('Error destroying iti instance:', e);
+        }
+        iti = null;
+    }
 
     sendToFlutter({
         type: 'closeRegistrationForm',
@@ -381,9 +779,33 @@ function handleRegistrationSubmit(event) {
 
     // Get form data
     const formData = new FormData(event.target);
-    const countryCode = formData.get('country_code') || '+971';
-    const phoneNumber = formData.get('mobile') || '';
-    const mobile = phoneNumber ? `${countryCode}${phoneNumber}` : '';
+
+    // Get phone number from intl-tel-input if available
+    let mobile = '';
+    if (iti) {
+        try {
+            const phoneNumber = iti.getNumber();
+            if (phoneNumber) {
+                mobile = phoneNumber;
+            } else {
+                // Fallback to form data
+                const phoneNumberInput = formData.get('mobile') || '';
+                const countryCode = iti.getSelectedCountryData().dialCode || '971';
+                mobile = phoneNumberInput ? `+${countryCode}${phoneNumberInput}` : '';
+            }
+        } catch (e) {
+            console.warn('Error getting phone number from iti:', e);
+            // Fallback to form data
+            const phoneNumber = formData.get('mobile') || '';
+            const countryCode = formData.get('country_code') || '+971';
+            mobile = phoneNumber ? `${countryCode}${phoneNumber}` : '';
+        }
+    } else {
+        // Fallback if iti is not initialized
+        const phoneNumber = formData.get('mobile') || '';
+        const countryCode = formData.get('country_code') || '+971';
+        mobile = phoneNumber ? `${countryCode}${phoneNumber}` : '';
+    }
 
     const registrationData = {
         firstname: formData.get('firstname'),
