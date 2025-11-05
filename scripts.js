@@ -832,7 +832,7 @@ function hideRegistrationLoading() {
     if (submitBtn) {
         submitBtn.classList.remove('loading');
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit Registration';
+        submitBtn.textContent = 'Register & Print';
     }
 }
 
