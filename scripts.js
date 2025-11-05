@@ -523,7 +523,12 @@ function initSelect2() {
 
         nationalitySelect.empty().append(new Option('Select Nationality', ''));
         COUNTRIES_LIST.forEach(country => {
-            nationalitySelect.append(new Option(country.text, country.value));
+            const opt = document.createElement('option');
+            opt.value = country.value;
+            opt.textContent = country.text;
+            // include ISO alpha-2 code on option
+            opt.dataset.code = (country.code || '').toUpperCase();
+            nationalitySelect.append(opt);
         });
 
         nationalitySelect.select2({
@@ -552,7 +557,12 @@ function initSelect2() {
 
         countrySelect.empty().append(new Option('Select Country of Residence', ''));
         COUNTRIES_LIST.forEach(country => {
-            countrySelect.append(new Option(country.text, country.value));
+            const opt = document.createElement('option');
+            opt.value = country.value;
+            opt.textContent = country.text;
+            // include ISO alpha-2 code on option
+            opt.dataset.code = (country.code || '').toUpperCase();
+            countrySelect.append(opt);
         });
 
         countrySelect.select2({
@@ -875,6 +885,19 @@ function handleRegistrationSubmit(event) {
         mobile = phoneNumber ? `${countryCode}${phoneNumber}` : '';
     }
 
+    // Resolve ISO codes from selected options
+    const nationalitySelectEl = document.getElementById('reg-nationality');
+    const corSelectEl = document.getElementById('reg-country-of-residence');
+    const nationalityCode = nationalitySelectEl && nationalitySelectEl.selectedIndex >= 0
+        ? (nationalitySelectEl.options[nationalitySelectEl.selectedIndex].dataset.code || '')
+        : '';
+    const corCode = corSelectEl && corSelectEl.selectedIndex >= 0
+        ? (corSelectEl.options[corSelectEl.selectedIndex].dataset.code || '')
+        : '';
+
+    const nationality = formData.get('nationality');
+    const countryOfResidence = formData.get('country_of_residence');
+
     const registrationData = {
         firstname: formData.get('firstname'),
         lastname: formData.get('lastname'),
@@ -882,12 +905,14 @@ function handleRegistrationSubmit(event) {
         mobile: mobile,
         company_name: formData.get('company'),
         designation: formData.get('designation'),
-        nationality: formData.get('nationality'),
-        country_of_residence: formData.get('country_of_residence'),
-        country: formData.get('nationality'),
-        country_code: "IN",
-        nationality_code: "IN",
-        country_of_residence_code: "IN",
+        nationality: nationality,
+        country_of_residence: countryOfResidence,
+        // ensure country mirrors nationality
+        country: nationality,
+        // dynamic codes from selections
+        country_code: (nationalityCode || '').toUpperCase(),
+        nationality_code: (nationalityCode || '').toUpperCase(),
+        country_of_residence_code: (corCode || '').toUpperCase(),
         ticket: 42,
         // ticket: 29,
     };

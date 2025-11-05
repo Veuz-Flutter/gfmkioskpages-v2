@@ -14,7 +14,8 @@
         body {
             font-family: 'Poppins', sans-serif !important;
         }
-        button{
+
+        button {
             font-family: 'Poppins', sans-serif !important;
         }
 
@@ -613,7 +614,7 @@
         .form_row .registration-field {
             width: 50%;
         }
-        
+
 
         @media (max-width: 1300px) {
             .form-main_wrapper {
@@ -637,10 +638,12 @@
             .badge-wrapper {
                 width: 45%;
             }
-            .form_row{
+
+            .form_row {
                 flex-direction: column;
             }
-            .form_row .registration-field{
+
+            .form_row .registration-field {
                 width: 100%;
             }
         }
@@ -698,6 +701,11 @@
 
             <form id="registrationFormElement" class="form_main" onsubmit="handleRegistrationSubmit(event)"
                 autocomplete="off">
+                <!-- Hidden decoy fields to discourage browser autofill/suggestions -->
+                <input type="text" aria-hidden="true" tabindex="-1" autocomplete="username"
+                    style="position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0;" />
+                <input type="password" aria-hidden="true" tabindex="-1" autocomplete="new-password"
+                    style="position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0;" />
                 <div class="registration-loading-overlay" id="registrationLoadingOverlay">
                     <div class="registration-loading-text">
                         <div class="registration-loading-spinner"></div>
@@ -1037,10 +1045,22 @@
 
         function initSelect2() {
             $("#reg-nationality").empty().append(new Option('Select Nationality', ''));
-            COUNTRIES_LIST.forEach(country => { $('#reg-nationality').append(new Option(country.text, country.value)); });
+            COUNTRIES_LIST.forEach(country => {
+                const opt = document.createElement('option');
+                opt.value = country.value;
+                opt.textContent = country.text;
+                opt.dataset.code = (country.code || '').toUpperCase();
+                document.getElementById('reg-nationality').appendChild(opt);
+            });
 
             $("#reg-country-of-residence").empty().append(new Option('Select Country of Residence', ''));
-            COUNTRIES_LIST.forEach(country => { $('#reg-country-of-residence').append(new Option(country.text, country.value)); });
+            COUNTRIES_LIST.forEach(country => {
+                const opt = document.createElement('option');
+                opt.value = country.value;
+                opt.textContent = country.text;
+                opt.dataset.code = (country.code || '').toUpperCase();
+                document.getElementById('reg-country-of-residence').appendChild(opt);
+            });
 
             $('#reg-nationality').select2({ placeholder: 'Select Nationality', allowClear: true, width: '100%', dropdownParent: $('#registrationForm') });
             $('#reg-country-of-residence').select2({ placeholder: 'Select Country of Residence', allowClear: true, width: '100%', dropdownParent: $('#registrationForm') });
@@ -1098,6 +1118,15 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
+            // Force-disable autocomplete and text corrections on all form controls
+            const controls = document.querySelectorAll('#registrationFormElement input, #registrationFormElement select, #registrationFormElement textarea');
+            controls.forEach(function (el) {
+                el.setAttribute('autocomplete', 'off');
+                el.setAttribute('autocapitalize', 'off');
+                el.setAttribute('autocorrect', 'off');
+                el.setAttribute('spellcheck', 'false');
+            });
+
             document.getElementById('reg-firstname').addEventListener('input', updateBadgePreview);
             document.getElementById('reg-lastname').addEventListener('input', updateBadgePreview);
             document.getElementById('reg-designation').addEventListener('input', updateBadgePreview);
