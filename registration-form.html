@@ -94,10 +94,10 @@
             justify-content: space-between;
         }
 
-        .registration-form-content-wrapper {
+        /* .registration-form-content-wrapper {
             display: flex;
             gap: 30px;
-        }
+        } */
 
         .registration-field-group {
             flex: 1;
@@ -139,6 +139,12 @@
 
         .registration-field input:focus,
         .registration-field select:focus {
+            outline: none;
+            border-color: #421989;
+            box-shadow: 0 4px 12px #42198980;
+        }
+
+        .select2-container--default .select2-selection--single:focus{
             outline: none;
             border-color: #421989;
             box-shadow: 0 4px 12px #42198980;
@@ -261,7 +267,7 @@
         }
 
         .registration-btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.3);
+            /* background: rgba(255, 255, 255, 0.3); */
             transform: translateY(-2px);
         }
 
@@ -583,6 +589,16 @@
             box-shadow: 0 4px 12px rgba(107, 2, 133, 0.4);
         }
 
+        .form_row{
+            display: flex;
+            width: 100%;
+            gap: 20px;
+        }
+
+        .form_row .registration-field{
+            width: 50%;
+        }
+
         @media (max-width: 1200px) {
             .form-main_wrapper {
                 width: 60%;
@@ -670,36 +686,42 @@
                     <div class="form-main_wrapper">
                         <div class="registration-form-content-wrapper">
                             <div class="registration-field-group">
-                                <div class="registration-field">
-                                    <label for="reg-firstname">First Name</label>
-                                    <input type="text" id="reg-firstname" name="firstname" placeholder="Enter First Name">
+                                <div class="form_row">
+                                    <div class="registration-field">
+                                        <label for="reg-firstname">First Name</label>
+                                        <input type="text" id="reg-firstname" name="firstname" placeholder="Enter First Name">
+                                    </div>
+                                        <div class="registration-field">
+                                        <label for="reg-lastname">Last Name</label>
+                                        <input type="text" id="reg-lastname" name="lastname" placeholder="Enter Last Name">
+                                    </div>
                                 </div>
-                                <div class="registration-field">
+
+                                <div class="form_row">
+                                    <div class="registration-field">
                                     <label for="reg-email">Email Address</label>
                                     <input type="email" id="reg-email" name="email" placeholder="Enter Email Address">
                                 </div>
-                                <div class="registration-field">
-                                    <label for="reg-company">Company Name</label>
-                                    <input type="text" id="reg-company" name="company" placeholder="Enter Company Name">
-                                </div>
-                                <div class="registration-field">
-                                    <label for="reg-designation">Job Title</label>
-                                    <input type="text" id="reg-designation" name="designation" placeholder="Enter Job Title">
-                                </div>
-                            </div>
-                            <div class="registration-field-group">
-                                <div class="registration-field">
-                                    <label for="reg-lastname">Last Name</label>
-                                    <input type="text" id="reg-lastname" name="lastname" placeholder="Enter Last Name">
-                                </div>
-                                <div class="registration-field">
+                                   <div class="registration-field">
                                     <label for="reg-mobile">Phone Number</label>
                                     <div class="phone-input-container">
                                         <input id="reg-mobile" type="tel" name="mobile"
                                             placeholder="Enter phone number">
                                     </div>
                                 </div>
-                                <div class="registration-field">
+                                </div>
+                                <div class="form_row">
+                                    <div class="registration-field">
+                                    <label for="reg-company">Company Name</label>
+                                    <input type="text" id="reg-company" name="company" placeholder="Enter Company Name">
+                                </div>
+                                 <div class="registration-field">
+                                    <label for="reg-designation">Job Title</label>
+                                    <input type="text" id="reg-designation" name="designation" placeholder="Enter Job Title">
+                                </div>
+                                </div>
+                                <div class="form_row">
+                                     <div class="registration-field">
                                     <label for="reg-nationality">Nationality</label>
                                     <select id="reg-nationality" name="nationality" class="select2-dropdown">
                                         <option value="">Select Nationality</option>
@@ -712,6 +734,11 @@
                                         <option value="">Select Country of Residence</option>
                                     </select>
                                 </div>
+                                </div>
+                               
+                                
+                                
+                               
                             </div>
                         </div>
                         <div class="registration-form-actions">
