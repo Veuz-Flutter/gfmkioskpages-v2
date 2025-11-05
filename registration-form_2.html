@@ -7,6 +7,9 @@
     <title>Registration Form</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.10.12/build/css/intlTelInput.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
@@ -46,6 +49,32 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             animation: registrationSlideIn 0.4s ease-out;
             position: relative;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar (WebKit browsers: Chrome, Edge, Safari) */
+        .registration-form-content::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .registration-form-content::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .registration-form-content::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #260a52, #06b6d4);
+            border-radius: 10px;
+        }
+
+        .registration-form-content::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #1b073b, #0891b2);
+        }
+
+        /* Firefox scrollbar */
+        .registration-form-content {
+            scrollbar-width: thin;
+            scrollbar-color: #7c3aed #f0f0f0;
         }
 
         @keyframes registrationSlideIn {
@@ -67,6 +96,7 @@
             text-align: left;
             padding: 15px;
             display: flex;
+            margin: 0px;
             justify-content: space-between;
         }
 
@@ -103,7 +133,6 @@
             color: #333;
             font-size: 16px;
             font-weight: 500;
-            min-height: 48px;
             transition: all 0.2s ease;
         }
 
@@ -198,9 +227,8 @@
         .registration-form-actions {
             display: flex;
             gap: 15px;
-            justify-content: flex-end;
+            justify-content: flex-start;
             margin-top: 30px;
-            padding-top: 20px;
             border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
 
@@ -267,8 +295,8 @@
         }
 
         .registration-close-btn svg {
-            width: 38px;
-            height: 38px;
+            min-width: 28px;
+            min-height: 28px;
             display: block;
             color: #fff;
             background: #eaeaea47;
@@ -308,6 +336,10 @@
             justify-content: center;
             position: relative;
             background: linear-gradient(135deg, #6b0285 0%, #4a2c7a 100%);
+            background-image: url(./img/card_footer.png);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
         }
 
         .badge_right_data .hero img {
@@ -391,7 +423,8 @@
             color: #6b0285;
             font-weight: 600;
             margin-bottom: 8px;
-            text-transform: uppercase
+            text-transform: uppercase;
+            font-size: 20px;
         }
 
         .badge_right_data .company,
@@ -401,6 +434,7 @@
             letter-spacing: 0.6px;
             text-transform: uppercase;
             margin-bottom: 8px;
+            font-size: 20px;
         }
 
         .badge_right_data .category {
@@ -425,7 +459,11 @@
             align-items: center;
             justify-content: center;
             color: white;
-            text-transform: uppercase
+            text-transform: uppercase;
+            background-image: url(./img/card_footer.png);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
         }
 
         .badge_right_data .category .small {
@@ -456,6 +494,75 @@
         #reg-mobile {
             width: 100%;
             padding-left: 52px;
+        }
+
+        .iti__search-input {
+            padding-left: 25px !important;
+        }
+
+        /* Select2 Custom Styling */
+        .select2-container--default .select2-selection--single {
+            background: white;
+            border: 2px solid #ebebeb;
+            border-radius: 8px;
+            padding: 8px 16px;
+            height: auto;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.5;
+            padding-left: 0;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100%;
+            right: 10px;
+        }
+
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: #421989;
+            box-shadow: 0 4px 12px #42198980;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #999;
+        }
+
+        .select2-dropdown {
+            border: 2px solid #421989;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px #42198980;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 2px solid #ebebeb;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+            border-color: #421989;
+            outline: none;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #421989;
+        }
+
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #f0e6ff;
+            color: #421989;
+        }
+
+        .select2-container {
+            width: 100% !important;
         }
 
         /* Demo button */
@@ -571,25 +678,25 @@
                             <div class="registration-field-group">
                                 <div class="registration-field">
                                     <label for="reg-firstname">First Name</label>
-                                    <input type="text" id="reg-firstname" name="firstname">
+                                    <input type="text" id="reg-firstname" name="firstname" placeholder="Enter your first name">
                                 </div>
                                 <div class="registration-field">
                                     <label for="reg-email">Email Address</label>
-                                    <input type="email" id="reg-email" name="email">
+                                    <input type="email" id="reg-email" name="email" placeholder="Enter your email address">
                                 </div>
                                 <div class="registration-field">
                                     <label for="reg-company">Company Name</label>
-                                    <input type="text" id="reg-company" name="company">
+                                    <input type="text" id="reg-company" name="company" placeholder="Enter your company name">
                                 </div>
                                 <div class="registration-field">
                                     <label for="reg-designation">Job Title</label>
-                                    <input type="text" id="reg-designation" name="designation">
+                                    <input type="text" id="reg-designation" name="designation" placeholder="Enter your job title">
                                 </div>
                             </div>
                             <div class="registration-field-group">
                                 <div class="registration-field">
                                     <label for="reg-lastname">Last Name</label>
-                                    <input type="text" id="reg-lastname" name="lastname">
+                                    <input type="text" id="reg-lastname" name="lastname" placeholder="Enter your last name">
                                 </div>
                                 <div class="registration-field">
                                     <label for="reg-mobile">Phone Number</label>
@@ -600,100 +707,14 @@
                                 </div>
                                 <div class="registration-field">
                                     <label for="reg-nationality">Nationality</label>
-                                    <select id="reg-nationality" name="nationality">
+                                    <select id="reg-nationality" name="nationality" class="select2-dropdown">
                                         <option value="">Select Nationality</option>
-                                        <option value="UAE">United Arab Emirates</option>
-                                        <option value="Saudi Arabia">Saudi Arabia</option>
-                                        <option value="Qatar">Qatar</option>
-                                        <option value="Kuwait">Kuwait</option>
-                                        <option value="Bahrain">Bahrain</option>
-                                        <option value="Oman">Oman</option>
-                                        <option value="USA">United States</option>
-                                        <option value="Canada">Canada</option>
-                                        <option value="UK">United Kingdom</option>
-                                        <option value="India">India</option>
-                                        <option value="Pakistan">Pakistan</option>
-                                        <option value="Bangladesh">Bangladesh</option>
-                                        <option value="Philippines">Philippines</option>
-                                        <option value="Egypt">Egypt</option>
-                                        <option value="Lebanon">Lebanon</option>
-                                        <option value="Jordan">Jordan</option>
-                                        <option value="Syria">Syria</option>
-                                        <option value="Iraq">Iraq</option>
-                                        <option value="Iran">Iran</option>
-                                        <option value="Turkey">Turkey</option>
-                                        <option value="France">France</option>
-                                        <option value="Germany">Germany</option>
-                                        <option value="Italy">Italy</option>
-                                        <option value="Spain">Spain</option>
-                                        <option value="Netherlands">Netherlands</option>
-                                        <option value="Belgium">Belgium</option>
-                                        <option value="Switzerland">Switzerland</option>
-                                        <option value="Australia">Australia</option>
-                                        <option value="New Zealand">New Zealand</option>
-                                        <option value="Japan">Japan</option>
-                                        <option value="China">China</option>
-                                        <option value="South Korea">South Korea</option>
-                                        <option value="Singapore">Singapore</option>
-                                        <option value="Malaysia">Malaysia</option>
-                                        <option value="Indonesia">Indonesia</option>
-                                        <option value="Thailand">Thailand</option>
-                                        <option value="Vietnam">Vietnam</option>
-                                        <option value="South Africa">South Africa</option>
-                                        <option value="Brazil">Brazil</option>
-                                        <option value="Mexico">Mexico</option>
-                                        <option value="Argentina">Argentina</option>
-                                        <option value="Russia">Russia</option>
-                                        <option value="Other">Other</option>
                                     </select>
                                 </div>
                                 <div class="registration-field">
                                     <label for="reg-country-of-residence">Country of Residence</label>
-                                    <select id="reg-country-of-residence" name="country_of_residence">
+                                    <select id="reg-country-of-residence" name="country_of_residence" class="select2-dropdown">
                                         <option value="">Select Country of Residence</option>
-                                        <option value="UAE">United Arab Emirates</option>
-                                        <option value="Saudi Arabia">Saudi Arabia</option>
-                                        <option value="Qatar">Qatar</option>
-                                        <option value="Kuwait">Kuwait</option>
-                                        <option value="Bahrain">Bahrain</option>
-                                        <option value="Oman">Oman</option>
-                                        <option value="USA">United States</option>
-                                        <option value="Canada">Canada</option>
-                                        <option value="UK">United Kingdom</option>
-                                        <option value="India">India</option>
-                                        <option value="Pakistan">Pakistan</option>
-                                        <option value="Bangladesh">Bangladesh</option>
-                                        <option value="Philippines">Philippines</option>
-                                        <option value="Egypt">Egypt</option>
-                                        <option value="Lebanon">Lebanon</option>
-                                        <option value="Jordan">Jordan</option>
-                                        <option value="Syria">Syria</option>
-                                        <option value="Iraq">Iraq</option>
-                                        <option value="Iran">Iran</option>
-                                        <option value="Turkey">Turkey</option>
-                                        <option value="France">France</option>
-                                        <option value="Germany">Germany</option>
-                                        <option value="Italy">Italy</option>
-                                        <option value="Spain">Spain</option>
-                                        <option value="Netherlands">Netherlands</option>
-                                        <option value="Belgium">Belgium</option>
-                                        <option value="Switzerland">Switzerland</option>
-                                        <option value="Australia">Australia</option>
-                                        <option value="New Zealand">New Zealand</option>
-                                        <option value="Japan">Japan</option>
-                                        <option value="China">China</option>
-                                        <option value="South Korea">South Korea</option>
-                                        <option value="Singapore">Singapore</option>
-                                        <option value="Malaysia">Malaysia</option>
-                                        <option value="Indonesia">Indonesia</option>
-                                        <option value="Thailand">Thailand</option>
-                                        <option value="Vietnam">Vietnam</option>
-                                        <option value="South Africa">South Africa</option>
-                                        <option value="Brazil">Brazil</option>
-                                        <option value="Mexico">Mexico</option>
-                                        <option value="Argentina">Argentina</option>
-                                        <option value="Russia">Russia</option>
-                                        <option value="Other">Other</option>
                                     </select>
                                 </div>
                             </div>
@@ -718,6 +739,7 @@
                             <div class="qr-wrap">
                                 <div class="qr-frame">
                                     <div class="qr">
+                                        <img src="img/qr.jpg" alt="" style="width: 100%;">
                                         <div class="placeholder-text">QR Code</div>
                                     </div>
                                 </div>
@@ -739,21 +761,274 @@
         </div>
     </div>
 
+    <!-- jQuery (required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.10.12/build/js/intlTelInput.min.js"></script>
+    
     <script>
         let iti;
+
+        // Single country list variable for all dropdowns - Complete list of all countries
+        const COUNTRIES_LIST = [
+            { value: "Afghanistan", text: "Afghanistan", code: "af" },
+            { value: "Albania", text: "Albania", code: "al" },
+            { value: "Algeria", text: "Algeria", code: "dz" },
+            { value: "Andorra", text: "Andorra", code: "ad" },
+            { value: "Angola", text: "Angola", code: "ao" },
+            { value: "Antigua and Barbuda", text: "Antigua and Barbuda", code: "ag" },
+            { value: "Argentina", text: "Argentina", code: "ar" },
+            { value: "Armenia", text: "Armenia", code: "am" },
+            { value: "Australia", text: "Australia", code: "au" },
+            { value: "Austria", text: "Austria", code: "at" },
+            { value: "Azerbaijan", text: "Azerbaijan", code: "az" },
+            { value: "Bahamas", text: "Bahamas", code: "bs" },
+            { value: "Bahrain", text: "Bahrain", code: "bh" },
+            { value: "Bangladesh", text: "Bangladesh", code: "bd" },
+            { value: "Barbados", text: "Barbados", code: "bb" },
+            { value: "Belarus", text: "Belarus", code: "by" },
+            { value: "Belgium", text: "Belgium", code: "be" },
+            { value: "Belize", text: "Belize", code: "bz" },
+            { value: "Benin", text: "Benin", code: "bj" },
+            { value: "Bhutan", text: "Bhutan", code: "bt" },
+            { value: "Bolivia", text: "Bolivia", code: "bo" },
+            { value: "Bosnia and Herzegovina", text: "Bosnia and Herzegovina", code: "ba" },
+            { value: "Botswana", text: "Botswana", code: "bw" },
+            { value: "Brazil", text: "Brazil", code: "br" },
+            { value: "Brunei", text: "Brunei", code: "bn" },
+            { value: "Bulgaria", text: "Bulgaria", code: "bg" },
+            { value: "Burkina Faso", text: "Burkina Faso", code: "bf" },
+            { value: "Burundi", text: "Burundi", code: "bi" },
+            { value: "Cambodia", text: "Cambodia", code: "kh" },
+            { value: "Cameroon", text: "Cameroon", code: "cm" },
+            { value: "Canada", text: "Canada", code: "ca" },
+            { value: "Cape Verde", text: "Cape Verde", code: "cv" },
+            { value: "Central African Republic", text: "Central African Republic", code: "cf" },
+            { value: "Chad", text: "Chad", code: "td" },
+            { value: "Chile", text: "Chile", code: "cl" },
+            { value: "China", text: "China", code: "cn" },
+            { value: "Colombia", text: "Colombia", code: "co" },
+            { value: "Comoros", text: "Comoros", code: "km" },
+            { value: "Congo", text: "Congo", code: "cg" },
+            { value: "Costa Rica", text: "Costa Rica", code: "cr" },
+            { value: "Croatia", text: "Croatia", code: "hr" },
+            { value: "Cuba", text: "Cuba", code: "cu" },
+            { value: "Cyprus", text: "Cyprus", code: "cy" },
+            { value: "Czech Republic", text: "Czech Republic", code: "cz" },
+            { value: "Denmark", text: "Denmark", code: "dk" },
+            { value: "Djibouti", text: "Djibouti", code: "dj" },
+            { value: "Dominica", text: "Dominica", code: "dm" },
+            { value: "Dominican Republic", text: "Dominican Republic", code: "do" },
+            { value: "East Timor", text: "East Timor", code: "tl" },
+            { value: "Ecuador", text: "Ecuador", code: "ec" },
+            { value: "Egypt", text: "Egypt", code: "eg" },
+            { value: "El Salvador", text: "El Salvador", code: "sv" },
+            { value: "Equatorial Guinea", text: "Equatorial Guinea", code: "gq" },
+            { value: "Eritrea", text: "Eritrea", code: "er" },
+            { value: "Estonia", text: "Estonia", code: "ee" },
+            { value: "Ethiopia", text: "Ethiopia", code: "et" },
+            { value: "Fiji", text: "Fiji", code: "fj" },
+            { value: "Finland", text: "Finland", code: "fi" },
+            { value: "France", text: "France", code: "fr" },
+            { value: "Gabon", text: "Gabon", code: "ga" },
+            { value: "Gambia", text: "Gambia", code: "gm" },
+            { value: "Georgia", text: "Georgia", code: "ge" },
+            { value: "Germany", text: "Germany", code: "de" },
+            { value: "Ghana", text: "Ghana", code: "gh" },
+            { value: "Greece", text: "Greece", code: "gr" },
+            { value: "Grenada", text: "Grenada", code: "gd" },
+            { value: "Guatemala", text: "Guatemala", code: "gt" },
+            { value: "Guinea", text: "Guinea", code: "gn" },
+            { value: "Guinea-Bissau", text: "Guinea-Bissau", code: "gw" },
+            { value: "Guyana", text: "Guyana", code: "gy" },
+            { value: "Haiti", text: "Haiti", code: "ht" },
+            { value: "Honduras", text: "Honduras", code: "hn" },
+            { value: "Hungary", text: "Hungary", code: "hu" },
+            { value: "Iceland", text: "Iceland", code: "is" },
+            { value: "India", text: "India", code: "in" },
+            { value: "Indonesia", text: "Indonesia", code: "id" },
+            { value: "Iran", text: "Iran", code: "ir" },
+            { value: "Iraq", text: "Iraq", code: "iq" },
+            { value: "Ireland", text: "Ireland", code: "ie" },
+            { value: "Israel", text: "Israel", code: "il" },
+            { value: "Italy", text: "Italy", code: "it" },
+            { value: "Ivory Coast", text: "Ivory Coast", code: "ci" },
+            { value: "Jamaica", text: "Jamaica", code: "jm" },
+            { value: "Japan", text: "Japan", code: "jp" },
+            { value: "Jordan", text: "Jordan", code: "jo" },
+            { value: "Kazakhstan", text: "Kazakhstan", code: "kz" },
+            { value: "Kenya", text: "Kenya", code: "ke" },
+            { value: "Kiribati", text: "Kiribati", code: "ki" },
+            { value: "North Korea", text: "North Korea", code: "kp" },
+            { value: "South Korea", text: "South Korea", code: "kr" },
+            { value: "Kuwait", text: "Kuwait", code: "kw" },
+            { value: "Kyrgyzstan", text: "Kyrgyzstan", code: "kg" },
+            { value: "Laos", text: "Laos", code: "la" },
+            { value: "Latvia", text: "Latvia", code: "lv" },
+            { value: "Lebanon", text: "Lebanon", code: "lb" },
+            { value: "Lesotho", text: "Lesotho", code: "ls" },
+            { value: "Liberia", text: "Liberia", code: "lr" },
+            { value: "Libya", text: "Libya", code: "ly" },
+            { value: "Liechtenstein", text: "Liechtenstein", code: "li" },
+            { value: "Lithuania", text: "Lithuania", code: "lt" },
+            { value: "Luxembourg", text: "Luxembourg", code: "lu" },
+            { value: "Macedonia", text: "Macedonia", code: "mk" },
+            { value: "Madagascar", text: "Madagascar", code: "mg" },
+            { value: "Malawi", text: "Malawi", code: "mw" },
+            { value: "Malaysia", text: "Malaysia", code: "my" },
+            { value: "Maldives", text: "Maldives", code: "mv" },
+            { value: "Mali", text: "Mali", code: "ml" },
+            { value: "Malta", text: "Malta", code: "mt" },
+            { value: "Marshall Islands", text: "Marshall Islands", code: "mh" },
+            { value: "Mauritania", text: "Mauritania", code: "mr" },
+            { value: "Mauritius", text: "Mauritius", code: "mu" },
+            { value: "Mexico", text: "Mexico", code: "mx" },
+            { value: "Micronesia", text: "Micronesia", code: "fm" },
+            { value: "Moldova", text: "Moldova", code: "md" },
+            { value: "Monaco", text: "Monaco", code: "mc" },
+            { value: "Mongolia", text: "Mongolia", code: "mn" },
+            { value: "Montenegro", text: "Montenegro", code: "me" },
+            { value: "Morocco", text: "Morocco", code: "ma" },
+            { value: "Mozambique", text: "Mozambique", code: "mz" },
+            { value: "Myanmar", text: "Myanmar", code: "mm" },
+            { value: "Namibia", text: "Namibia", code: "na" },
+            { value: "Nauru", text: "Nauru", code: "nr" },
+            { value: "Nepal", text: "Nepal", code: "np" },
+            { value: "Netherlands", text: "Netherlands", code: "nl" },
+            { value: "New Zealand", text: "New Zealand", code: "nz" },
+            { value: "Nicaragua", text: "Nicaragua", code: "ni" },
+            { value: "Niger", text: "Niger", code: "ne" },
+            { value: "Nigeria", text: "Nigeria", code: "ng" },
+            { value: "Norway", text: "Norway", code: "no" },
+            { value: "Oman", text: "Oman", code: "om" },
+            { value: "Pakistan", text: "Pakistan", code: "pk" },
+            { value: "Palau", text: "Palau", code: "pw" },
+            { value: "Palestine", text: "Palestine", code: "ps" },
+            { value: "Panama", text: "Panama", code: "pa" },
+            { value: "Papua New Guinea", text: "Papua New Guinea", code: "pg" },
+            { value: "Paraguay", text: "Paraguay", code: "py" },
+            { value: "Peru", text: "Peru", code: "pe" },
+            { value: "Philippines", text: "Philippines", code: "ph" },
+            { value: "Poland", text: "Poland", code: "pl" },
+            { value: "Portugal", text: "Portugal", code: "pt" },
+            { value: "Qatar", text: "Qatar", code: "qa" },
+            { value: "Romania", text: "Romania", code: "ro" },
+            { value: "Russia", text: "Russia", code: "ru" },
+            { value: "Rwanda", text: "Rwanda", code: "rw" },
+            { value: "Saint Kitts and Nevis", text: "Saint Kitts and Nevis", code: "kn" },
+            { value: "Saint Lucia", text: "Saint Lucia", code: "lc" },
+            { value: "Saint Vincent and the Grenadines", text: "Saint Vincent and the Grenadines", code: "vc" },
+            { value: "Samoa", text: "Samoa", code: "ws" },
+            { value: "San Marino", text: "San Marino", code: "sm" },
+            { value: "Sao Tome and Principe", text: "Sao Tome and Principe", code: "st" },
+            { value: "Saudi Arabia", text: "Saudi Arabia", code: "sa" },
+            { value: "Senegal", text: "Senegal", code: "sn" },
+            { value: "Serbia", text: "Serbia", code: "rs" },
+            { value: "Seychelles", text: "Seychelles", code: "sc" },
+            { value: "Sierra Leone", text: "Sierra Leone", code: "sl" },
+            { value: "Singapore", text: "Singapore", code: "sg" },
+            { value: "Slovakia", text: "Slovakia", code: "sk" },
+            { value: "Slovenia", text: "Slovenia", code: "si" },
+            { value: "Solomon Islands", text: "Solomon Islands", code: "sb" },
+            { value: "Somalia", text: "Somalia", code: "so" },
+            { value: "South Africa", text: "South Africa", code: "za" },
+            { value: "South Sudan", text: "South Sudan", code: "ss" },
+            { value: "Spain", text: "Spain", code: "es" },
+            { value: "Sri Lanka", text: "Sri Lanka", code: "lk" },
+            { value: "Sudan", text: "Sudan", code: "sd" },
+            { value: "Suriname", text: "Suriname", code: "sr" },
+            { value: "Swaziland", text: "Swaziland", code: "sz" },
+            { value: "Sweden", text: "Sweden", code: "se" },
+            { value: "Switzerland", text: "Switzerland", code: "ch" },
+            { value: "Syria", text: "Syria", code: "sy" },
+            { value: "Taiwan", text: "Taiwan", code: "tw" },
+            { value: "Tajikistan", text: "Tajikistan", code: "tj" },
+            { value: "Tanzania", text: "Tanzania", code: "tz" },
+            { value: "Thailand", text: "Thailand", code: "th" },
+            { value: "Togo", text: "Togo", code: "tg" },
+            { value: "Tonga", text: "Tonga", code: "to" },
+            { value: "Trinidad and Tobago", text: "Trinidad and Tobago", code: "tt" },
+            { value: "Tunisia", text: "Tunisia", code: "tn" },
+            { value: "Turkey", text: "Turkey", code: "tr" },
+            { value: "Turkmenistan", text: "Turkmenistan", code: "tm" },
+            { value: "Tuvalu", text: "Tuvalu", code: "tv" },
+            { value: "UAE", text: "United Arab Emirates", code: "ae" },
+            { value: "Uganda", text: "Uganda", code: "ug" },
+            { value: "Ukraine", text: "Ukraine", code: "ua" },
+            { value: "UK", text: "United Kingdom", code: "gb" },
+            { value: "USA", text: "United States", code: "us" },
+            { value: "Uruguay", text: "Uruguay", code: "uy" },
+            { value: "Uzbekistan", text: "Uzbekistan", code: "uz" },
+            { value: "Vanuatu", text: "Vanuatu", code: "vu" },
+            { value: "Vatican City", text: "Vatican City", code: "va" },
+            { value: "Venezuela", text: "Venezuela", code: "ve" },
+            { value: "Vietnam", text: "Vietnam", code: "vn" },
+            { value: "Yemen", text: "Yemen", code: "ye" },
+            { value: "Zambia", text: "Zambia", code: "zm" },
+            { value: "Zimbabwe", text: "Zimbabwe", code: "zw" }
+        ];
+
+        // Preferred countries for phone input
+        const PREFERRED_COUNTRIES = ["in", "ae", "us", "gb"];
 
         // Initialize intl-tel-input when form opens
         function initPhoneInput() {
             const input = document.querySelector("#reg-mobile");
             if (input && !iti) {
                 iti = window.intlTelInput(input, {
-                    initialCountry: "in",
-                    preferredCountries: ["in", "ae", "us", "gb"],
+                    initialCountry: "ae",
+                    preferredCountries: PREFERRED_COUNTRIES,
                     separateDialCode: true,
                     utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.10.12/build/js/utils.js"
                 });
             }
+        }
+
+        // Initialize Select2 for nationality and country dropdowns
+        function initSelect2() {
+            // Populate nationality dropdown
+            COUNTRIES_LIST.forEach(country => {
+                $('#reg-nationality').append(new Option(country.text, country.value));
+            });
+
+            // Populate country of residence dropdown
+            COUNTRIES_LIST.forEach(country => {
+                $('#reg-country-of-residence').append(new Option(country.text, country.value));
+            });
+
+            $('#reg-nationality').select2({
+                placeholder: 'Select Nationality',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#registrationForm')
+            });
+
+            $('#reg-country-of-residence').select2({
+                placeholder: 'Select Country of Residence',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#registrationForm')
+            });
+
+            // Autofocus search box when dropdown opens for nationality
+            $('#reg-nationality').on('select2:open', function() {
+                setTimeout(function() {
+                    document.querySelector('.select2-search__field').focus();
+                }, 100);
+            });
+
+            // Autofocus search box when dropdown opens for country of residence
+            $('#reg-country-of-residence').on('select2:open', function() {
+                setTimeout(function() {
+                    document.querySelector('.select2-search__field').focus();
+                }, 100);
+            });
+
+            // Update badge preview on Select2 change
+            $('#reg-country-of-residence').on('change', function() {
+                updateBadgePreview();
+            });
         }
 
         // Function to update badge preview in real-time
@@ -762,7 +1037,7 @@
             const lastName = document.getElementById('reg-lastname').value.trim();
             const jobTitle = document.getElementById('reg-designation').value.trim();
             const company = document.getElementById('reg-company').value.trim();
-            const country = document.getElementById('reg-country-of-residence').value;
+            const country = $('#reg-country-of-residence').val();
 
             // Update full name
             const fullName = [firstName, lastName].filter(name => name).join(' ') || 'FULL NAME';
@@ -783,9 +1058,10 @@
             const el = document.getElementById('registrationForm');
             if (el) {
                 el.classList.remove('hidden');
-                // Initialize phone input after form is visible
+                // Initialize phone input and Select2 after form is visible
                 setTimeout(() => {
                     initPhoneInput();
+                    initSelect2();
                 }, 100);
             }
         }
@@ -793,7 +1069,12 @@
         // Close registration form
         function closeRegistrationForm() {
             const el = document.getElementById('registrationForm');
-            if (el) el.classList.add('hidden');
+            if (el) {
+                el.classList.add('hidden');
+                // Destroy Select2 instances when closing
+                $('#reg-nationality').select2('destroy');
+                $('#reg-country-of-residence').select2('destroy');
+            }
         }
 
         // Handle form submission
@@ -807,21 +1088,26 @@
             setTimeout(() => {
                 loadingOverlay.classList.remove('visible');
                 alert('Registration submitted successfully!');
-                closeRegistrationForm();
+                
+                // Destroy Select2 before resetting
+                $('#reg-nationality').select2('destroy');
+                $('#reg-country-of-residence').select2('destroy');
+                
                 // Reset form
                 document.getElementById('registrationFormElement').reset();
+                
+                closeRegistrationForm();
                 updateBadgePreview();
             }, 2000);
         }
 
         // Add event listeners when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
+        $(document).ready(function() {
             // Add event listeners to all relevant input fields
-            document.getElementById('reg-firstname').addEventListener('input', updateBadgePreview);
-            document.getElementById('reg-lastname').addEventListener('input', updateBadgePreview);
-            document.getElementById('reg-designation').addEventListener('input', updateBadgePreview);
-            document.getElementById('reg-company').addEventListener('input', updateBadgePreview);
-            document.getElementById('reg-country-of-residence').addEventListener('change', updateBadgePreview);
+            $('#reg-firstname').on('input', updateBadgePreview);
+            $('#reg-lastname').on('input', updateBadgePreview);
+            $('#reg-designation').on('input', updateBadgePreview);
+            $('#reg-company').on('input', updateBadgePreview);
         });
     </script>
 </body>

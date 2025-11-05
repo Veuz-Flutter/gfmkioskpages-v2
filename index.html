@@ -93,6 +93,9 @@
     <!-- Registration Form Container -->
     <div id="registrationFormContainer"></div>
 
+    <!-- Welcome Message -->
+    <div id="welcomeMessageContainer"></div>
+
     <div class="main_bg_video">
         <video autoplay muted loop playsinline>
             <!-- <source src="videos/gulfood_01_old.mp4" type="video/mp4"> -->
@@ -157,7 +160,6 @@
                         <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
                     </div>
                     <div class="btn-text">
-                        <div class="btn-text-line1">Start</div>
                         <div class="btn-text-line2">Self Registration</div>
                     </div>
                 </button>
@@ -200,6 +202,12 @@
                 document.getElementById('registrationFormContainer').innerHTML = html;
             })
             .catch(error => console.error('Error loading registration form:', error));
+        fetch('welcome-message.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('welcomeMessageContainer').innerHTML = html;
+            })
+            .catch(error => console.error('Error loading welcome message:', error));
     </script>
     <script src="scripts.js"></script>
 </body>

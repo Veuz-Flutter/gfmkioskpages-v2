@@ -12,6 +12,8 @@ function receiveFromFlutter(data) {
         toggleCustomerDetails(data.customerData !== undefined ? data.customerData : data.value);
     } else if (data.type === 'toggleRegistrationMode') {
         toggleRegistrationMode(data.value);
+    } else if (data.type === 'showError') {
+        showError(data.error);
     }
 }
 
@@ -72,65 +74,70 @@ function openDrawer() {
     });
 }
 
-// Self registration action
-function selfRegister(extraData) {
-    const payload = {
-        type: 'selfRegister',
-        timestamp: new Date().toISOString()
-    };
-    if (extraData && typeof extraData === 'object') {
-        payload.data = extraData;
-    }
-    console.log('📝 Self registration triggered');
-    sendToFlutter(payload);
-}
+// // Self registration action
+// function selfRegister(extraData) {
+//     const payload = {
+//         type: 'selfRegister',
+//         timestamp: new Date().toISOString()
+//     };
+//     if (extraData && typeof extraData === 'object') {
+//         payload.data = extraData;
+//     }
+//     console.log('📝 Self registration triggered');
+//     sendToFlutter(payload);
+// }
 
 // Registration mode state
 let isRegistrationMode = false;
 
 function toggleRegistrationMode(value) {
+
+    closeRegistrationForm();
     // If value is provided (true/false), use it; otherwise toggle
     isRegistrationMode = value !== undefined ? value : !isRegistrationMode;
 
-    // Show only the Self Registration button when in registration mode
-    const allButtons = document.querySelectorAll('.checkin-buttons .checkin-btn');
     const lockIcon = document.getElementById('lockIcon');
-    const lockButton = lockIcon ? lockIcon.closest('button') : null;
     const drawerBtn = document.querySelector('.drawer-btn');
-    allButtons.forEach((button) => {
-        const handler = button.getAttribute('onclick') || '';
-        const isSelfButton = handler.includes('selfRegister');
-        if (isRegistrationMode) {
-            // Registration mode: show only the self-registration button
-            if (isSelfButton) {
-                button.classList.remove('hidden');
-            } else {
-                button.classList.add('hidden');
-            }
-            if (lockIcon) {
-                lockIcon.style.visibility = 'visible';
-            }
-            // Keep the unlock button behavior unchanged (same as kiosk unlock)
-            if (drawerBtn) {
-                drawerBtn.classList.add('hidden');
-            }
-        } else {
-            // Normal mode: hide the self button, show others
-            if (isSelfButton) {
-                button.classList.add('hidden');
-            } else {
-                button.classList.remove('hidden');
-            }
-            // Keep the unlock button behavior unchanged (same as kiosk unlock)
-            if (lockIcon) {
-                // Only show the unlock if kiosk is locked; otherwise hide it
-                lockIcon.style.visibility = isKioskLocked ? 'visible' : 'hidden';
-            }
-            if (drawerBtn) {
-                drawerBtn.classList.remove('hidden');
-            }
+    const selfRegistrationButton = document.querySelector('.checkin-buttons .checkin-btn[onclick="openRegistrationForm()"]');
+    const qrCodeButton = document.querySelector('.checkin-buttons .checkin-btn[onclick="checkInWithQR()"]');
+    const searchButton = document.querySelector('.checkin-buttons .checkin-btn[onclick="checkInWithSearch()"]');
+
+    if (isRegistrationMode) {
+        // Registration mode: show unlock button, hide drawer button, hide first 2 buttons, show Self Registration button
+        if (lockIcon) {
+            lockIcon.style.visibility = 'visible';
         }
-    });
+        if (drawerBtn) {
+            drawerBtn.classList.add('hidden');
+        }
+        if (qrCodeButton) {
+            qrCodeButton.classList.add('hidden');
+        }
+        if (searchButton) {
+            searchButton.classList.add('hidden');
+        }
+        if (selfRegistrationButton) {
+            selfRegistrationButton.classList.remove('hidden');
+        }
+    } else {
+        // Normal mode: hide unlock button (unless kiosk is locked), show drawer button, show first 2 buttons, hide Self Registration button
+        if (lockIcon) {
+            // Only show the unlock if kiosk is locked; otherwise hide it
+            lockIcon.style.visibility = isKioskLocked ? 'visible' : 'hidden';
+        }
+        if (drawerBtn) {
+            drawerBtn.classList.remove('hidden');
+        }
+        if (qrCodeButton) {
+            qrCodeButton.classList.remove('hidden');
+        }
+        if (searchButton) {
+            searchButton.classList.remove('hidden');
+        }
+        if (selfRegistrationButton) {
+            selfRegistrationButton.classList.add('hidden');
+        }
+    }
 
     sendToFlutter({
         type: 'toggleRegistrationMode',
@@ -218,6 +225,9 @@ function hideDummyControlls() {
 function showWelcome(userData) {
     console.log('👋 Welcome message shown', userData);
 
+    // Close the registration form
+    closeRegistrationForm();
+
     // Update welcome message with user data
     if (userData) {
         // Extract the name from userData
@@ -266,6 +276,8 @@ function showDummyControlls() {
 }
 
 // Registration Form Functions
+let registrationFormAutoCloseTimeout = null;
+
 function openRegistrationForm() {
     console.log('📝 Opening registration form');
     const registrationForm = document.getElementById('registrationForm');
@@ -273,6 +285,25 @@ function openRegistrationForm() {
         registrationForm.classList.remove('hidden');
         console.log('👁️ Registration form visible');
     }
+
+    // Clear any previous errors when opening the form
+    clearErrors();
+
+    // Hide loading state when opening form
+    hideRegistrationLoading();
+
+    // Setup field error clearing (in case form was loaded dynamically)
+    setTimeout(() => {
+        setupFieldErrorClearing();
+    }, 100);
+
+    // Focus on first name field after 1 second
+    setTimeout(() => {
+        const firstNameField = document.getElementById('reg-firstname');
+        if (firstNameField) {
+            firstNameField.focus();
+        }
+    }, 100);
 
     sendToFlutter({
         type: 'openRegistrationForm',
@@ -288,27 +319,82 @@ function closeRegistrationForm() {
         console.log('🙈 Registration form hidden');
     }
 
+    // Clear auto-close timeout if it exists
+    if (registrationFormAutoCloseTimeout) {
+        clearTimeout(registrationFormAutoCloseTimeout);
+        registrationFormAutoCloseTimeout = null;
+    }
+
+    // Hide loading state when closing form
+    hideRegistrationLoading();
+
     sendToFlutter({
         type: 'closeRegistrationForm',
         timestamp: new Date().toISOString()
     });
 }
 
+function showRegistrationLoading() {
+    const loadingOverlay = document.getElementById('registrationLoadingOverlay');
+    const submitBtn = document.getElementById('registration-submit-btn');
+
+    if (loadingOverlay) {
+        loadingOverlay.classList.add('visible');
+    }
+
+    if (submitBtn) {
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+    }
+}
+
+function hideRegistrationLoading() {
+    const loadingOverlay = document.getElementById('registrationLoadingOverlay');
+    const submitBtn = document.getElementById('registration-submit-btn');
+
+    // Clear auto-close timeout if it exists
+    if (registrationFormAutoCloseTimeout) {
+        clearTimeout(registrationFormAutoCloseTimeout);
+        registrationFormAutoCloseTimeout = null;
+    }
+
+    if (loadingOverlay) {
+        loadingOverlay.classList.remove('visible');
+    }
+
+    if (submitBtn) {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Registration';
+    }
+}
+
 function handleRegistrationSubmit(event) {
     event.preventDefault();
     console.log('📝 Registration form submitted');
 
+    // Clear previous errors
+    clearErrors();
+    // Show loading state
+    showRegistrationLoading();
+
     // Get form data
     const formData = new FormData(event.target);
+    const countryCode = formData.get('country_code') || '+971';
+    const phoneNumber = formData.get('mobile') || '';
+    const mobile = phoneNumber ? `${countryCode}${phoneNumber}` : '';
+
     const registrationData = {
         firstname: formData.get('firstname'),
         lastname: formData.get('lastname'),
         email: formData.get('email'),
-        mobile: formData.get('mobile'),
-        company: formData.get('company'),
+        mobile: mobile,
+        company_name: formData.get('company'),
         designation: formData.get('designation'),
         nationality: formData.get('nationality'),
-        ticket: formData.get('ticket') ? { ticket_display_name: formData.get('ticket') } : null
+        country_of_residence: formData.get('country_of_residence'),
+        ticket: 176,
     };
 
     console.log('📋 Registration data:', registrationData);
@@ -320,11 +406,128 @@ function handleRegistrationSubmit(event) {
         timestamp: new Date().toISOString()
     });
 
-    // Close the form after submission
-    closeRegistrationForm();
+    // Auto-close form after 10 seconds if no errors occur
+    // Clear any existing timeout first
+    if (registrationFormAutoCloseTimeout) {
+        clearTimeout(registrationFormAutoCloseTimeout);
+    }
+
+    registrationFormAutoCloseTimeout = setTimeout(() => {
+        console.log('⏰ Auto-closing registration form after 10 seconds');
+        closeRegistrationForm();
+        registrationFormAutoCloseTimeout = null;
+    }, 10000);
+
+    // Note: Loading will be hidden when form closes or errors are shown
+    // closeRegistrationForm();
 
     // Optionally show success message or welcome message
     // showWelcome(registrationData);
+}
+
+// Field mapping from API field names to form field IDs
+const registrationFieldMap = {
+    'firstname': 'reg-firstname',
+    'lastname': 'reg-lastname',
+    'email': 'reg-email',
+    'mobile': 'reg-mobile',
+    'company_name': 'reg-company',
+    'company': 'reg-company', // Also support 'company' directly
+    'designation': 'reg-designation',
+    'nationality': 'reg-nationality',
+    'ticket': 'reg-ticket',
+    'country_of_residence': 'reg-country-of-residence'
+};
+
+// Function to show validation errors
+function showError(errorData) {
+    console.log('❌ Showing registration errors:', errorData);
+
+    // Hide loading state when showing errors
+    hideRegistrationLoading();
+
+    // Clear previous errors first
+    clearErrors();
+
+    // Handle error structure: { detail: { field: [error messages] } }
+    let errors = null;
+    if (errorData && errorData.detail) {
+        errors = errorData.detail;
+    } else if (errorData && typeof errorData === 'object') {
+        errors = errorData;
+    }
+
+    if (!errors) {
+        console.warn('⚠️ Invalid error format');
+        return;
+    }
+
+    // Iterate through each error field
+    Object.keys(errors).forEach(fieldName => {
+        const fieldId = registrationFieldMap[fieldName];
+
+        // Skip if field doesn't exist in form
+        if (!fieldId) {
+            console.warn(`⚠️ Field "${fieldName}" not found in form`);
+            return;
+        }
+
+        const fieldElement = document.getElementById(fieldId);
+        if (!fieldElement) {
+            console.warn(`⚠️ Element with ID "${fieldId}" not found`);
+            return;
+        }
+
+        // Get error messages (could be array or single string)
+        const errorMessages = Array.isArray(errors[fieldName])
+            ? errors[fieldName]
+            : [errors[fieldName]];
+
+        // Display first error message
+        const errorMessage = errorMessages[0];
+
+        // Add error class to input/select
+        fieldElement.classList.add('error');
+
+        // If it's a mobile field error, also highlight the country code selector
+        if (fieldId === 'reg-mobile') {
+            const countryCodeSelect = document.getElementById('reg-country-code');
+            if (countryCodeSelect) {
+                countryCodeSelect.classList.add('error');
+            }
+        }
+
+        // Find the parent registration-field div
+        const fieldContainer = fieldElement.closest('.registration-field');
+        if (fieldContainer) {
+            // Remove existing error message if any
+            const existingError = fieldContainer.querySelector('.registration-field-error');
+            if (existingError) {
+                existingError.remove();
+            }
+
+            // Create and append error message
+            const errorElement = document.createElement('span');
+            errorElement.className = 'registration-field-error';
+            errorElement.textContent = errorMessage;
+            fieldContainer.appendChild(errorElement);
+        }
+    });
+}
+
+// Function to clear all validation errors
+function clearErrors() {
+    // Remove error class from all fields (including country code select)
+    const errorFields = document.querySelectorAll('.registration-field input.error, .registration-field select.error, .phone-input-container select.error, .phone-input-container input.error');
+    errorFields.forEach(field => {
+        field.classList.remove('error');
+    });
+
+    // Remove all error messages
+    const errorMessages = document.querySelectorAll('.registration-field-error');
+    errorMessages.forEach(error => {
+        error.remove();
+    });
 }
 
 // Customer details data
@@ -405,9 +608,66 @@ function updateUserDetailsForm(userData) {
     }
 }
 
+// Clear field error when user starts typing
+function setupFieldErrorClearing() {
+    const registrationForm = document.getElementById('registrationFormElement');
+    if (registrationForm) {
+        const fields = registrationForm.querySelectorAll('input, select');
+        fields.forEach(field => {
+            // Handle input events for text fields
+            field.addEventListener('input', function () {
+                // Clear error for this specific field
+                this.classList.remove('error');
+                const fieldContainer = this.closest('.registration-field');
+                if (fieldContainer) {
+                    const errorElement = fieldContainer.querySelector('.registration-field-error');
+                    if (errorElement) {
+                        errorElement.remove();
+                    }
+                }
+            });
+
+            // Handle change events for select dropdowns
+            if (field.tagName === 'SELECT') {
+                field.addEventListener('change', function () {
+                    // Clear error for this specific field
+                    this.classList.remove('error');
+                    const fieldContainer = this.closest('.registration-field');
+                    if (fieldContainer) {
+                        const errorElement = fieldContainer.querySelector('.registration-field-error');
+                        if (errorElement) {
+                            errorElement.remove();
+                        }
+                    }
+                });
+            }
+        });
+
+        // Setup phone number field to only accept numbers
+        const phoneNumberField = document.getElementById('reg-mobile');
+        if (phoneNumberField) {
+            phoneNumberField.addEventListener('input', function (e) {
+                // Remove any non-numeric characters
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            phoneNumberField.addEventListener('paste', function (e) {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text');
+                const numbersOnly = paste.replace(/[^0-9]/g, '');
+                this.value = numbersOnly;
+            });
+        }
+    }
+}
+
 // Notify Flutter that page is loaded
 window.addEventListener('load', function () {
     console.log('✅ Event Check-In page loaded');
+
+    // Setup field error clearing on input
+    setupFieldErrorClearing();
+
     sendToFlutter({
         type: 'pageLoaded',
         timestamp: new Date().toISOString()
