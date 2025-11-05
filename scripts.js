@@ -664,6 +664,9 @@ function openRegistrationForm() {
     // Hide loading state when opening form
     hideRegistrationLoading();
 
+    // Ensure autocomplete is disabled on form and fields
+    disableRegistrationAutocomplete();
+
     // Initialize phone input and Select2 when form opens
     setTimeout(() => {
         initPhoneInput();
@@ -693,6 +696,10 @@ function closeRegistrationForm() {
         registrationForm.classList.add('hidden');
         console.log('🙈 Registration form hidden');
     }
+
+    // Clear any existing validation errors and reset fields
+    clearErrors();
+    clearRegistrationFormFields();
 
     // Clear auto-close timeout if it exists
     if (registrationFormAutoCloseTimeout) {
@@ -730,6 +737,67 @@ function closeRegistrationForm() {
         type: 'closeRegistrationForm',
         timestamp: new Date().toISOString()
     });
+}
+
+// Disable browser autocomplete/autocorrect for registration form fields
+function disableRegistrationAutocomplete() {
+    const form = document.getElementById('registrationFormElement');
+    if (!form) return;
+    form.setAttribute('autocomplete', 'off');
+    const fields = form.querySelectorAll('input, select');
+    fields.forEach(field => {
+        field.setAttribute('autocomplete', 'off');
+        field.setAttribute('autocorrect', 'off');
+        field.setAttribute('autocapitalize', 'off');
+        field.setAttribute('spellcheck', 'false');
+    });
+}
+
+// Clear all registration fields and reset UI state
+function clearRegistrationFormFields() {
+    const form = document.getElementById('registrationFormElement');
+    if (!form) return;
+
+    // Reset native form fields
+    form.reset();
+
+    // Clear text inputs explicitly (covers cases where reset isn't enough)
+    ['reg-firstname', 'reg-lastname', 'reg-email', 'reg-company', 'reg-designation'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
+    // Clear phone input value
+    const phoneInput = document.getElementById('reg-mobile');
+    if (phoneInput) {
+        phoneInput.value = '';
+    }
+
+    // Clear select values (with or without Select2)
+    const nationalitySelect = document.getElementById('reg-nationality');
+    if (nationalitySelect) {
+        nationalitySelect.value = '';
+        if (typeof $ !== 'undefined' && $.fn.select2 && $('#reg-nationality').data('select2')) {
+            $('#reg-nationality').val('').trigger('change');
+        }
+    }
+    const countrySelectEl = document.getElementById('reg-country-of-residence');
+    if (countrySelectEl) {
+        countrySelectEl.value = '';
+        if (typeof $ !== 'undefined' && $.fn.select2 && $('#reg-country-of-residence').data('select2')) {
+            $('#reg-country-of-residence').val('').trigger('change');
+        }
+    }
+
+    // Reset badge preview placeholders
+    const badgeFullname = document.getElementById('badge-fullname');
+    if (badgeFullname) badgeFullname.textContent = 'FULL NAME';
+    const badgeJobtitle = document.getElementById('badge-jobtitle');
+    if (badgeJobtitle) badgeJobtitle.textContent = 'JOB TITLE';
+    const badgeCompany = document.getElementById('badge-company');
+    if (badgeCompany) badgeCompany.textContent = 'COMPANY NAME';
+    const badgeCountry = document.getElementById('badge-country');
+    if (badgeCountry) badgeCountry.textContent = 'COUNTRY OF RESIDENCE';
 }
 
 function showRegistrationLoading() {
