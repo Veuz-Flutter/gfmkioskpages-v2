@@ -148,6 +148,23 @@
             box-shadow: 0 4px 12px #42198980;
         }
 
+        /* Prevent browser autofill styling */
+        .registration-field input:-webkit-autofill,
+        .registration-field input:-webkit-autofill:hover,
+        .registration-field input:-webkit-autofill:focus,
+        .registration-field input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+            -webkit-text-fill-color: #333 !important;
+            transition: background-color 5000s ease-in-out 0s;
+            caret-color: #333 !important;
+        }
+
+        /* Prevent autofill background color */
+        input:-webkit-autofill {
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+        }
+
         .select2-container--default .select2-selection--single:focus {
             outline: none;
             border-color: #421989;
@@ -700,12 +717,24 @@
             </div>
 
             <form id="registrationFormElement" class="form_main" onsubmit="handleRegistrationSubmit(event)"
-                autocomplete="off">
+                autocomplete="chrome-off" novalidate>
                 <!-- Hidden decoy fields to discourage browser autofill/suggestions -->
+                <input type="text" name="fake-firstname" aria-hidden="true" tabindex="-1" autocomplete="given-name"
+                    style="position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0; pointer-events:none;" />
+                <input type="text" name="fake-lastname" aria-hidden="true" tabindex="-1" autocomplete="family-name"
+                    style="position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0; pointer-events:none;" />
+                <input type="email" name="fake-email" aria-hidden="true" tabindex="-1" autocomplete="email"
+                    style="position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0; pointer-events:none;" />
+                <input type="tel" name="fake-phone" aria-hidden="true" tabindex="-1" autocomplete="tel"
+                    style="position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0; pointer-events:none;" />
+                <input type="text" name="fake-company" aria-hidden="true" tabindex="-1" autocomplete="organization"
+                    style="position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0; pointer-events:none;" />
+                <input type="text" name="fake-job" aria-hidden="true" tabindex="-1" autocomplete="organization-title"
+                    style="position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0; pointer-events:none;" />
                 <input type="text" aria-hidden="true" tabindex="-1" autocomplete="username"
-                    style="position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0;" />
+                    style="position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0; pointer-events:none;" />
                 <input type="password" aria-hidden="true" tabindex="-1" autocomplete="new-password"
-                    style="position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0;" />
+                    style="position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0; pointer-events:none;" />
                 <div class="registration-loading-overlay" id="registrationLoadingOverlay">
                     <div class="registration-loading-text">
                         <div class="registration-loading-spinner"></div>
@@ -720,14 +749,16 @@
                                 <div class="form_row">
                                     <div class="registration-field">
                                         <label for="reg-firstname">First Name</label>
-                                        <input type="text" id="reg-firstname" name="firstname" autocomplete="off"
-                                            spellcheck="false" autocapitalize="off" autocorrect="off"
+                                        <input type="text" id="reg-firstname" autocomplete="nope" spellcheck="false"
+                                            autocapitalize="off" autocorrect="off" data-lpignore="true"
+                                            data-form-type="other" readonly onfocus="this.removeAttribute('readonly');"
                                             placeholder="Enter First Name">
                                     </div>
                                     <div class="registration-field">
                                         <label for="reg-lastname">Last Name</label>
-                                        <input type="text" id="reg-lastname" name="lastname" autocomplete="off"
-                                            spellcheck="false" autocapitalize="off" autocorrect="off"
+                                        <input type="text" id="reg-lastname" autocomplete="nope" spellcheck="false"
+                                            autocapitalize="off" autocorrect="off" data-lpignore="true"
+                                            data-form-type="other" readonly onfocus="this.removeAttribute('readonly');"
                                             placeholder="Enter Last Name">
                                     </div>
                                 </div>
@@ -735,15 +766,19 @@
                                 <div class="form_row">
                                     <div class="registration-field">
                                         <label for="reg-email">Email Address</label>
-                                        <input type="email" id="reg-email" name="email" autocomplete="off"
-                                            spellcheck="false" autocapitalize="off" autocorrect="off"
+                                        <input type="text" id="reg-email" autocomplete="nope" spellcheck="false"
+                                            autocapitalize="off" autocorrect="off" inputmode="email"
+                                            data-lpignore="true" data-form-type="other" readonly
+                                            onfocus="this.removeAttribute('readonly'); this.setAttribute('type', 'email');"
                                             placeholder="Enter Email Address">
                                     </div>
                                     <div class="registration-field">
                                         <label for="reg-mobile">Phone Number</label>
                                         <div class="phone-input-container">
-                                            <input id="reg-mobile" type="tel" name="mobile" autocomplete="off"
-                                                spellcheck="false" autocapitalize="off" autocorrect="off"
+                                            <input id="reg-mobile" type="text" autocomplete="nope" spellcheck="false"
+                                                autocapitalize="off" autocorrect="off" inputmode="tel"
+                                                data-lpignore="true" data-form-type="other" readonly
+                                                onfocus="this.removeAttribute('readonly'); this.setAttribute('type', 'tel');"
                                                 placeholder="Enter phone number">
                                         </div>
                                     </div>
@@ -751,28 +786,31 @@
                                 <div class="form_row">
                                     <div class="registration-field">
                                         <label for="reg-designation">Job Title</label>
-                                        <input type="text" id="reg-designation" name="designation" autocomplete="off"
-                                            spellcheck="false" autocapitalize="off" autocorrect="off"
+                                        <input type="text" id="reg-designation" autocomplete="nope" spellcheck="false"
+                                            autocapitalize="off" autocorrect="off" data-lpignore="true"
+                                            data-form-type="other" readonly onfocus="this.removeAttribute('readonly');"
                                             placeholder="Enter Job Title">
                                     </div>
                                     <div class="registration-field">
                                         <label for="reg-company">Company Name</label>
-                                        <input type="text" id="reg-company" name="company" autocomplete="off"
-                                            spellcheck="false" autocapitalize="off" autocorrect="off"
+                                        <input type="text" id="reg-company" autocomplete="nope" spellcheck="false"
+                                            autocapitalize="off" autocorrect="off" data-lpignore="true"
+                                            data-form-type="other" readonly onfocus="this.removeAttribute('readonly');"
                                             placeholder="Enter Company Name">
                                     </div>
                                 </div>
                                 <div class="form_row">
                                     <div class="registration-field">
                                         <label for="reg-nationality">Nationality</label>
-                                        <select id="reg-nationality" name="nationality" class="select2-dropdown">
+                                        <select id="reg-nationality" class="select2-dropdown" autocomplete="nope"
+                                            data-lpignore="true" data-form-type="other">
                                             <option value="">Select Nationality</option>
                                         </select>
                                     </div>
                                     <div class="registration-field">
                                         <label for="reg-country-of-residence">Country of Residence</label>
-                                        <select id="reg-country-of-residence" name="country_of_residence"
-                                            class="select2-dropdown">
+                                        <select id="reg-country-of-residence" class="select2-dropdown"
+                                            autocomplete="nope" data-lpignore="true" data-form-type="other">
                                             <option value="">Select Country of Residence</option>
                                         </select>
                                     </div>

@@ -485,6 +485,14 @@ const PREFERRED_COUNTRIES = ["in", "ae", "us", "gb"];
 function initPhoneInput() {
     const input = document.querySelector("#reg-mobile");
     if (input && window.intlTelInput) {
+        // Remove readonly before initializing
+        input.removeAttribute('readonly');
+
+        // Ensure type is tel for intl-tel-input
+        if (input.type !== 'tel') {
+            input.setAttribute('type', 'tel');
+        }
+
         // Destroy existing instance if any
         if (iti) {
             try {
@@ -502,6 +510,11 @@ function initPhoneInput() {
                 separateDialCode: true,
                 utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.10.12/build/js/utils.js"
             });
+
+            // Re-apply autocomplete prevention after intl-tel-input initialization
+            input.setAttribute('autocomplete', 'nope');
+            input.setAttribute('data-lpignore', 'true');
+            input.setAttribute('data-form-type', 'other');
         }
     }
 }
@@ -683,15 +696,28 @@ function openRegistrationForm() {
         initSelect2();
         setupFieldErrorClearing();
         setupBadgePreviewListeners();
+
+        // Ensure all readonly attributes are removed when form is fully loaded
+        const form = document.getElementById('registrationFormElement');
+        if (form) {
+            const inputs = form.querySelectorAll('input[readonly]');
+            inputs.forEach(input => {
+                if (!input.hasAttribute('aria-hidden')) {
+                    input.removeAttribute('readonly');
+                }
+            });
+        }
     }, 100);
 
-    // Focus on first name field after 1 second
+    // Focus on first name field after form is ready
     setTimeout(() => {
         const firstNameField = document.getElementById('reg-firstname');
         if (firstNameField) {
+            // Remove readonly before focusing
+            firstNameField.removeAttribute('readonly');
             firstNameField.focus();
         }
-    }, 100);
+    }, 200);
 
     sendToFlutter({
         type: 'openRegistrationForm',
@@ -753,15 +779,65 @@ function closeRegistrationForm() {
 function disableRegistrationAutocomplete() {
     const form = document.getElementById('registrationFormElement');
     if (!form) return;
-    form.setAttribute('autocomplete', 'off');
+
+    // Set form-level autocomplete
+    form.setAttribute('autocomplete', 'chrome-off');
+    form.setAttribute('novalidate', 'true');
+
     const fields = form.querySelectorAll('input, select');
     fields.forEach(field => {
-        field.setAttribute('autocomplete', 'new-password');
+        // Skip decoy fields
+        if (field.hasAttribute('aria-hidden') || field.getAttribute('name')?.startsWith('fake-')) {
+            return;
+        }
+
+        // Aggressive autocomplete prevention
+        field.setAttribute('autocomplete', 'nope');
         field.setAttribute('autocorrect', 'off');
         field.setAttribute('autocapitalize', 'off');
         field.setAttribute('spellcheck', 'false');
         field.setAttribute('data-lpignore', 'true');
+        field.setAttribute('data-form-type', 'other');
+
+        // For text inputs, ensure readonly is removed on focus
+        if (field.tagName === 'INPUT' && field.type !== 'hidden') {
+            // Add readonly initially if not already set
+            if (!field.hasAttribute('readonly')) {
+                field.setAttribute('readonly', 'readonly');
+            }
+
+            // Ensure focus handler removes readonly
+            field.addEventListener('focus', function () {
+                this.removeAttribute('readonly');
+                // For email/tel, change type on focus
+                const inputId = this.id;
+                if (inputId === 'reg-email' && this.type !== 'email') {
+                    this.setAttribute('type', 'email');
+                } else if (inputId === 'reg-mobile' && this.type !== 'tel') {
+                    this.setAttribute('type', 'tel');
+                }
+            }, { once: false });
+
+            // Also remove readonly on click/touch
+            field.addEventListener('mousedown', function () {
+                this.removeAttribute('readonly');
+            }, { once: false });
+
+            field.addEventListener('touchstart', function () {
+                this.removeAttribute('readonly');
+            }, { once: false });
+        }
     });
+
+    // Small delay to ensure readonly is applied, then remove it programmatically after a moment
+    setTimeout(() => {
+        fields.forEach(field => {
+            if (field.tagName === 'INPUT' && field.type !== 'hidden' && !field.hasAttribute('aria-hidden')) {
+                // Remove readonly after a short delay so user can interact
+                field.removeAttribute('readonly');
+            }
+        });
+    }, 100);
 }
 
 // Clear all registration fields and reset UI state
@@ -856,8 +932,15 @@ function handleRegistrationSubmit(event) {
     // Show loading state
     showRegistrationLoading();
 
-    // Get form data
-    const formData = new FormData(event.target);
+    // Get form values by ID
+    const firstNameEl = document.getElementById('reg-firstname');
+    const lastNameEl = document.getElementById('reg-lastname');
+    const emailEl = document.getElementById('reg-email');
+    const mobileEl = document.getElementById('reg-mobile');
+    const companyEl = document.getElementById('reg-company');
+    const designationEl = document.getElementById('reg-designation');
+    const nationalitySelectEl = document.getElementById('reg-nationality');
+    const corSelectEl = document.getElementById('reg-country-of-residence');
 
     // Get phone number from intl-tel-input if available
     let mobile = '';
@@ -867,28 +950,26 @@ function handleRegistrationSubmit(event) {
             if (phoneNumber) {
                 mobile = phoneNumber;
             } else {
-                // Fallback to form data
-                const phoneNumberInput = formData.get('mobile') || '';
+                // Fallback to input value
+                const phoneNumberInput = mobileEl ? mobileEl.value.trim() : '';
                 const countryCode = iti.getSelectedCountryData().dialCode || '971';
                 mobile = phoneNumberInput ? `+${countryCode}${phoneNumberInput}` : '';
             }
         } catch (e) {
             console.warn('Error getting phone number from iti:', e);
-            // Fallback to form data
-            const phoneNumber = formData.get('mobile') || '';
-            const countryCode = formData.get('country_code') || '+971';
+            // Fallback to input value
+            const phoneNumber = mobileEl ? mobileEl.value.trim() : '';
+            const countryCode = '+971';
             mobile = phoneNumber ? `${countryCode}${phoneNumber}` : '';
         }
     } else {
         // Fallback if iti is not initialized
-        const phoneNumber = formData.get('mobile') || '';
-        const countryCode = formData.get('country_code') || '+971';
+        const phoneNumber = mobileEl ? mobileEl.value.trim() : '';
+        const countryCode = '+971';
         mobile = phoneNumber ? `${countryCode}${phoneNumber}` : '';
     }
 
     // Resolve ISO codes from selected options
-    const nationalitySelectEl = document.getElementById('reg-nationality');
-    const corSelectEl = document.getElementById('reg-country-of-residence');
     const nationalityCode = nationalitySelectEl && nationalitySelectEl.selectedIndex >= 0
         ? (nationalitySelectEl.options[nationalitySelectEl.selectedIndex].dataset.code || '')
         : '';
@@ -896,16 +977,36 @@ function handleRegistrationSubmit(event) {
         ? (corSelectEl.options[corSelectEl.selectedIndex].dataset.code || '')
         : '';
 
-    const nationality = formData.get('nationality');
-    const countryOfResidence = formData.get('country_of_residence');
+    // Get select values - handle both native select and Select2
+    let nationality = '';
+    let countryOfResidence = '';
+
+    if (typeof $ !== 'undefined' && $.fn.select2) {
+        // Use Select2 if available
+        if ($('#reg-nationality').data('select2')) {
+            nationality = $('#reg-nationality').val() || '';
+        } else {
+            nationality = nationalitySelectEl ? nationalitySelectEl.value : '';
+        }
+
+        if ($('#reg-country-of-residence').data('select2')) {
+            countryOfResidence = $('#reg-country-of-residence').val() || '';
+        } else {
+            countryOfResidence = corSelectEl ? corSelectEl.value : '';
+        }
+    } else {
+        // Use native select values
+        nationality = nationalitySelectEl ? nationalitySelectEl.value : '';
+        countryOfResidence = corSelectEl ? corSelectEl.value : '';
+    }
 
     const registrationData = {
-        firstname: formData.get('firstname'),
-        lastname: formData.get('lastname'),
-        email: formData.get('email'),
+        firstname: firstNameEl ? firstNameEl.value.trim() : '',
+        lastname: lastNameEl ? lastNameEl.value.trim() : '',
+        email: emailEl ? emailEl.value.trim() : '',
         mobile: mobile,
-        company_name: formData.get('company'),
-        designation: formData.get('designation'),
+        company_name: companyEl ? companyEl.value.trim() : '',
+        designation: designationEl ? designationEl.value.trim() : '',
         nationality: nationality,
         country_of_residence: countryOfResidence,
         // ensure country mirrors nationality
@@ -1196,7 +1297,7 @@ window.addEventListener('load', function () {
     } catch (e) {
         console.warn('Error disabling autocomplete globally:', e);
     }
-
+``
     sendToFlutter({
         type: 'pageLoaded',
         timestamp: new Date().toISOString()
@@ -1209,28 +1310,39 @@ function disableAllAutocomplete() {
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
         if (!form) return;
-        form.setAttribute('autocomplete', 'off');
+        form.setAttribute('autocomplete', 'chrome-off');
+        form.setAttribute('novalidate', 'true');
         // Inject decoy fields once per form
         addDecoyFieldsToForm(form);
         // Disable on all controls within the form
         const controls = form.querySelectorAll('input, select, textarea');
         controls.forEach(function (el) {
-            el.setAttribute('autocomplete', 'new-password');
+            // Skip decoy fields
+            if (el.hasAttribute('aria-hidden') || el.getAttribute('name')?.startsWith('fake-')) {
+                return;
+            }
+            el.setAttribute('autocomplete', 'nope');
             el.setAttribute('autocapitalize', 'off');
             el.setAttribute('autocorrect', 'off');
             el.setAttribute('spellcheck', 'false');
             el.setAttribute('data-lpignore', 'true');
+            el.setAttribute('data-form-type', 'other');
         });
     });
 
     // Also disable on any loose inputs on the page (outside forms)
     const looseControls = document.querySelectorAll('body input, body select, body textarea');
     looseControls.forEach(function (el) {
-        el.setAttribute('autocomplete', 'new-password');
+        // Skip decoy fields
+        if (el.hasAttribute('aria-hidden') || el.getAttribute('name')?.startsWith('fake-')) {
+            return;
+        }
+        el.setAttribute('autocomplete', 'nope');
         el.setAttribute('autocapitalize', 'off');
         el.setAttribute('autocorrect', 'off');
         el.setAttribute('spellcheck', 'false');
         el.setAttribute('data-lpignore', 'true');
+        el.setAttribute('data-form-type', 'other');
     });
 }
 
@@ -1280,6 +1392,19 @@ function observeDynamicFormsForAutocomplete() {
                         needsRun = true;
                 }
             }
+
+            // Watch for autofill attribute changes
+            if (m.type === 'attributes' && m.attributeName === 'autocomplete') {
+                const target = m.target;
+                if (target instanceof HTMLInputElement || target instanceof HTMLSelectElement) {
+                    // If browser tries to change autocomplete, revert it
+                    if (!target.hasAttribute('aria-hidden') && !target.getAttribute('name')?.startsWith('fake-')) {
+                        if (target.getAttribute('autocomplete') !== 'nope') {
+                            target.setAttribute('autocomplete', 'nope');
+                        }
+                    }
+                }
+            }
         }
         if (needsRun) {
             disableAllAutocomplete();
@@ -1288,6 +1413,31 @@ function observeDynamicFormsForAutocomplete() {
 
     observer.observe(document.documentElement || document.body, {
         childList: true,
-        subtree: true
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['autocomplete']
+    });
+
+    // Also monitor for autofill events
+    document.addEventListener('input', function (e) {
+        const target = e.target;
+        if (target instanceof HTMLInputElement && target.matches('#registrationFormElement input')) {
+            // Check if browser autofilled by checking if value changed without user input
+            // This is a heuristic check
+            if (target.hasAttribute('data-user-input') === false && target.value) {
+                // Possibly autofilled - ensure autocomplete is still disabled
+                target.setAttribute('autocomplete', 'nope');
+                target.setAttribute('data-lpignore', 'true');
+                target.setAttribute('data-form-type', 'other');
+            }
+        }
+    });
+
+    // Mark fields as user-input when user types
+    document.addEventListener('keydown', function (e) {
+        const target = e.target;
+        if (target instanceof HTMLInputElement && target.matches('#registrationFormElement input')) {
+            target.setAttribute('data-user-input', 'true');
+        }
     });
 }
