@@ -884,8 +884,8 @@ function handleRegistrationSubmit(event) {
         designation: formData.get('designation'),
         nationality: formData.get('nationality'),
         country_of_residence: formData.get('country_of_residence'),
-        // ticket: 42,
-        ticket: 29,
+        ticket: 42,
+        // ticket: 29,
     };
 
     console.log('📋 Registration data:', registrationData);
