@@ -1188,8 +1188,103 @@ window.addEventListener('load', function () {
     // Setup field error clearing on input
     setupFieldErrorClearing();
 
+    // Globally disable autocomplete and inject decoy fields for any forms/inputs
+    try {
+        disableAllAutocomplete();
+        observeDynamicFormsForAutocomplete();
+    } catch (e) {
+        console.warn('Error disabling autocomplete globally:', e);
+    }
+
     sendToFlutter({
         type: 'pageLoaded',
         timestamp: new Date().toISOString()
     });
 });
+
+// Add hidden decoy fields and disable autofill across all forms/inputs
+function disableAllAutocomplete() {
+    // Disable on every form
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        if (!form) return;
+        form.setAttribute('autocomplete', 'off');
+        // Inject decoy fields once per form
+        addDecoyFieldsToForm(form);
+        // Disable on all controls within the form
+        const controls = form.querySelectorAll('input, select, textarea');
+        controls.forEach(function (el) {
+            el.setAttribute('autocomplete', 'off');
+            el.setAttribute('autocapitalize', 'off');
+            el.setAttribute('autocorrect', 'off');
+            el.setAttribute('spellcheck', 'false');
+        });
+    });
+
+    // Also disable on any loose inputs on the page (outside forms)
+    const looseControls = document.querySelectorAll('body input, body select, body textarea');
+    looseControls.forEach(function (el) {
+        el.setAttribute('autocomplete', 'off');
+        el.setAttribute('autocapitalize', 'off');
+        el.setAttribute('autocorrect', 'off');
+        el.setAttribute('spellcheck', 'false');
+    });
+}
+
+function addDecoyFieldsToForm(form) {
+    // Skip if decoys already added
+    if (form.querySelector('[data-decoy-field="true"]')) return;
+
+    const offscreenStyle = 'position:absolute; left:-9999px; top:-9999px; opacity:0; height:0; width:0; border:0; padding:0;';
+
+    const decoyUsername = document.createElement('input');
+    decoyUsername.type = 'text';
+    decoyUsername.setAttribute('aria-hidden', 'true');
+    decoyUsername.setAttribute('tabindex', '-1');
+    decoyUsername.setAttribute('autocomplete', 'username');
+    decoyUsername.setAttribute('data-decoy-field', 'true');
+    decoyUsername.setAttribute('style', offscreenStyle);
+
+    const decoyPassword = document.createElement('input');
+    decoyPassword.type = 'password';
+    decoyPassword.setAttribute('aria-hidden', 'true');
+    decoyPassword.setAttribute('tabindex', '-1');
+    decoyPassword.setAttribute('autocomplete', 'new-password');
+    decoyPassword.setAttribute('data-decoy-field', 'true');
+    decoyPassword.setAttribute('style', offscreenStyle);
+
+    // Insert at the beginning of the form
+    if (form.firstChild) {
+        form.insertBefore(decoyUsername, form.firstChild);
+        form.insertBefore(decoyPassword, form.firstChild);
+    } else {
+        form.appendChild(decoyUsername);
+        form.appendChild(decoyPassword);
+    }
+}
+
+// Observe DOM mutations to apply to dynamically inserted forms/inputs
+function observeDynamicFormsForAutocomplete() {
+    const observer = new MutationObserver((mutations) => {
+        let needsRun = false;
+        for (const m of mutations) {
+            if (m.type === 'childList' && (m.addedNodes && m.addedNodes.length)) {
+                for (const node of m.addedNodes) {
+                    if (!(node instanceof HTMLElement)) continue;
+                    if (node.matches && (node.matches('form') || node.querySelector('form')))
+                        needsRun = true;
+                    if (node.matches && (node.matches('input, select, textarea') || node.querySelector('input, select, textarea')))
+                        needsRun = true;
+                }
+            }
+        }
+        if (needsRun) {
+            disableAllAutocomplete();
+        }
+    });
+
+    observer.observe(document.documentElement || document.body, {
+        childList: true,
+        subtree: true
+    });
+}
